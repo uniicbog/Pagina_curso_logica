@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import { Play, RotateCcw, FunctionSquare, ArrowRight } from 'lucide-react';
+import { FunctionSquare, ArrowRight } from 'lucide-react';
+import { useExecutionEngine } from '../hooks/useExecutionEngine';
+import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 7. Funciones
 // Bloques de código reutilizables
@@ -20,46 +23,68 @@ sumar(10, 20);
 sumar(-5, 8);`;
 
 const Functions = () => {
-  const [code, setCode] = useState(defaultCode);
   const [calls, setCalls] = useState([]);
-  const [error, setError] = useState(null);
+
+  const validationFn = (state) => {
+    if ((state.calls || 0) > 0) {
+      return { success: true, message: `Perfecto, registraste ${state.calls} llamadas de función.` };
+    }
+    return { success: false, message: 'Define y ejecuta una función para ver el flujo de entrada y salida.' };
+  };
+
+  const {
+    code,
+    setCode,
+    runCode,
+    reset,
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
+    isPlaying,
+    currentStepIndex,
+    totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
+    error,
+    feedback
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'functions' });
 
   const handleRun = () => {
     setCalls([]);
-    setError(null);
 
-    try {
-      // Mock function to capture function calls
-      const animarFuncion = (nombre, entradas, salida) => {
-        setCalls(prev => [...prev, { nombre, entradas, salida }]);
-      };
-
-      // Mock console.log
-      const console = { log: () => {} };
-
-      // Execute user code
-      const runUserCode = new Function('animarFuncion', 'console', `
-        try {
-          ${code}
-        } catch (e) {
-          throw e;
+    runCode((addToQueue, updateUserState) => {
+      let callCount = 0;
+      return {
+        animarFuncion: (nombre, entradas, salida) => {
+          callCount += 1;
+          updateUserState({ calls: callCount });
+          addToQueue(() => {
+            setCalls((prev) => [...prev, { nombre, entradas, salida }]);
+          });
         }
-      `);
-
-      runUserCode(animarFuncion, console);
-    } catch (err) {
-      setError(err.message);
-    }
+      };
+    });
   };
 
   const handleReset = () => {
     setCode(defaultCode);
     setCalls([]);
-    setError(null);
+    reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-indigo-400 mb-2">
           <FunctionSquare size={20} />
@@ -67,6 +92,7 @@ const Functions = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Funciones</h2>
         <p className="text-slate-400 mb-6">Crea tus propias herramientas reutilizables.</p>
+        <TopicLearningToolkit sectionKey="funciones" title="Funciones" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
@@ -81,6 +107,11 @@ const Functions = () => {
                 <p className="leading-relaxed">
                     Las funciones te ayudan a no repetir código, hacer tus programas más ordenados y fáciles de entender. Pueden recibir ingredientes (parámetros) y devolver un resultado (return).
                 </p>
+              <p className="leading-relaxed mt-3">
+                También permiten dividir problemas grandes en tareas pequeñas. En vez de resolver todo en un solo bloque de código,
+                defines funciones con una responsabilidad clara y luego las reutilizas en distintos lugares del programa.
+                Esto mejora el mantenimiento y facilita encontrar errores.
+              </p>
             </div>
 
             <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
@@ -100,6 +131,24 @@ const Functions = () => {
                     </code>
                 </div>
             </div>
+
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                    Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  FUNCIÓN sumar(a, b)
+    resultado <- a + b
+    RETORNAR resultado
+  FIN_FUNCIÓN
+
+  mostrar sumar(5, 3)
+  mostrar sumar(10, 20)
+FIN`}
+                </pre>
+            </div>
         </div>
       </header>
 
@@ -108,44 +157,47 @@ const Functions = () => {
         <div className="flex flex-col bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
           <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-slate-700">
             <span className="text-slate-300 font-medium text-sm">Editor de Código</span>
-            <div className="flex gap-2">
-              <button 
-                onClick={handleReset}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
-                title="Restablecer código"
-              >
-                <RotateCcw size={16} />
-              </button>
-              <button 
-                onClick={handleRun}
-                className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                <Play size={16} />
-                Ejecutar
-              </button>
-            </div>
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
-          {error && (
-            <div className="p-4 bg-red-900/20 border-t border-red-900/50 text-red-400 text-sm font-mono">
-              Error: {error}
-            </div>
-          )}
+          <div className="p-4 bg-[#252526] border-t border-slate-700">
+            <ExecutionControls
+              onRun={handleRun}
+              onReset={handleReset}
+              onStep={nextStep}
+              onPause={pause}
+              onResume={play}
+              stepMode={stepMode}
+              onStepModeChange={setStepMode}
+              isPlaying={isPlaying}
+              currentStep={currentStepIndex}
+              totalSteps={totalSteps}
+              currentLine={currentLine}
+              breakpoints={breakpoints}
+              onBreakpointsChange={setBreakpoints}
+              playbackSpeed={playbackSpeed}
+              onSpeedChange={setPlaybackSpeed}
+            />
+            <AdaptiveExerciseBank
+              sectionKey="funciones"
+              recommendedDifficulty={recommendedDifficulty}
+              onLoadCode={setCode}
+            />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
+          </div>
         </div>
 
         {/* Visualization Column */}
@@ -196,6 +248,8 @@ const Functions = () => {
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="funciones" />
     </div>
   );
 };

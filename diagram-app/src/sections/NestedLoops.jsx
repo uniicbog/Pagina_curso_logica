@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import { Play, RotateCcw, Layers } from 'lucide-react';
+import { Layers } from 'lucide-react';
+import { useExecutionEngine } from '../hooks/useExecutionEngine';
+import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 5. Ciclos Anidados
 // Un ciclo dentro de otro (Filas y Columnas)
@@ -20,55 +23,75 @@ for (let f = 0; f < filas; f++) {
 }`;
 
 const NestedLoops = () => {
-  const [code, setCode] = useState(defaultCode);
   const [gridSize, setGridSize] = useState({ rows: 0, cols: 0 });
   const [visitedCells, setVisitedCells] = useState([]);
-  const [error, setError] = useState(null);
+
+  const validationFn = (state) => {
+    if ((state.visited || 0) > 0) {
+      return { success: true, message: `Recorriste ${state.visited} celdas del grid.` };
+    }
+    return { success: false, message: 'Ejecuta un ciclo anidado para explorar el grid.' };
+  };
+
+  const {
+    code,
+    setCode,
+    runCode,
+    reset,
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
+    isPlaying,
+    currentStepIndex,
+    totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
+    error,
+    feedback
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'nested-loops' });
 
   const handleRun = () => {
     setVisitedCells([]);
     setGridSize({ rows: 0, cols: 0 });
-    setError(null);
 
-    try {
-      // Mock function to capture nested loop steps
-      const animarAnidado = (f, c, totalF, totalC) => {
-        // Update grid size if needed (taking the max seen or the passed total)
-        setGridSize(prev => ({
-          rows: Math.max(prev.rows, totalF),
-          cols: Math.max(prev.cols, totalC)
-        }));
-        
-        setVisitedCells(prev => [...prev, { r: f, c: c }]);
-      };
-
-      // Mock console.log
-      const console = { log: () => {} };
-
-      // Execute user code
-      const runUserCode = new Function('animarAnidado', 'console', `
-        try {
-          ${code}
-        } catch (e) {
-          throw e;
+    runCode((addToQueue, updateUserState) => {
+      let visited = 0;
+      return {
+        animarAnidado: (f, c, totalF, totalC) => {
+          visited += 1;
+          updateUserState({ visited, totalF, totalC });
+          addToQueue(() => {
+            setGridSize((prev) => ({
+              rows: Math.max(prev.rows, Number(totalF) || 0),
+              cols: Math.max(prev.cols, Number(totalC) || 0)
+            }));
+            setVisitedCells((prev) => [...prev, { r: f, c }]);
+          });
         }
-      `);
-
-      runUserCode(animarAnidado, console);
-    } catch (err) {
-      setError(err.message);
-    }
+      };
+    });
   };
 
   const handleReset = () => {
     setCode(defaultCode);
     setVisitedCells([]);
     setGridSize({ rows: 0, cols: 0 });
-    setError(null);
+    reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-pink-400 mb-2">
           <Layers size={20} />
@@ -76,6 +99,7 @@ const NestedLoops = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Ciclos Anidados</h2>
         <p className="text-slate-400 mb-6">Recorre estructuras de dos dimensiones (como una tabla).</p>
+        <TopicLearningToolkit sectionKey="anidados" title="Ciclos Anidados" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
@@ -89,6 +113,10 @@ const NestedLoops = () => {
                 <p className="leading-relaxed">
                     Son fundamentales para trabajar con datos en dos dimensiones, como una hoja de cálculo (filas y columnas), un tablero de ajedrez o una imagen (píxeles).
                     El ciclo interno se ejecuta completamente por cada sola iteración del ciclo externo.
+                </p>
+                <p className="leading-relaxed mt-3">
+                  Una forma útil de pensarlo es por niveles: el ciclo externo selecciona una fila y el interno recorre todas las columnas de esa fila.
+                  Cuando termina, el externo avanza a la siguiente fila y el proceso se repite. Este patrón aparece mucho en matrices, tablas y reportes.
                 </p>
             </div>
 
@@ -109,6 +137,25 @@ const NestedLoops = () => {
                     </code>
                 </div>
             </div>
+
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                    Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  definir filas como entero <- 3
+  definir columnas como entero <- 4
+
+  PARA f <- 0 HASTA filas - 1 HACER
+    PARA c <- 0 HASTA columnas - 1 HACER
+      mostrar "Posición: (" + f + "," + c + ")"
+    FIN_PARA
+  FIN_PARA
+FIN`}
+                </pre>
+            </div>
         </div>
       </header>
 
@@ -117,44 +164,47 @@ const NestedLoops = () => {
         <div className="flex flex-col bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
           <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-slate-700">
             <span className="text-slate-300 font-medium text-sm">Editor de Código</span>
-            <div className="flex gap-2">
-              <button 
-                onClick={handleReset}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
-                title="Restablecer código"
-              >
-                <RotateCcw size={16} />
-              </button>
-              <button 
-                onClick={handleRun}
-                className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                <Play size={16} />
-                Ejecutar
-              </button>
-            </div>
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
-          {error && (
-            <div className="p-4 bg-red-900/20 border-t border-red-900/50 text-red-400 text-sm font-mono">
-              Error: {error}
-            </div>
-          )}
+          <div className="p-4 bg-[#252526] border-t border-slate-700">
+            <ExecutionControls
+              onRun={handleRun}
+              onReset={handleReset}
+              onStep={nextStep}
+              onPause={pause}
+              onResume={play}
+              stepMode={stepMode}
+              onStepModeChange={setStepMode}
+              isPlaying={isPlaying}
+              currentStep={currentStepIndex}
+              totalSteps={totalSteps}
+              currentLine={currentLine}
+              breakpoints={breakpoints}
+              onBreakpointsChange={setBreakpoints}
+              playbackSpeed={playbackSpeed}
+              onSpeedChange={setPlaybackSpeed}
+            />
+            <AdaptiveExerciseBank
+              sectionKey="anidados"
+              recommendedDifficulty={recommendedDifficulty}
+              onLoadCode={setCode}
+            />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
+          </div>
         </div>
 
         {/* Visualization Column */}
@@ -210,6 +260,8 @@ const NestedLoops = () => {
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="anidados" />
     </div>
   );
 };

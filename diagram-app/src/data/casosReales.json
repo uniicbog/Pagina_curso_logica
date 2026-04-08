@@ -1,0 +1,86 @@
+{
+  "variables": [
+    {
+      "title": "Inventario de videojuego",
+      "description": "Guardar nombre del jugador, nivel y monedas para renderizar HUD.",
+      "snippet": "let jugador = 'Luna';\nlet nivel = 7;\nlet monedas = 230;"
+    },
+    {
+      "title": "Perfil de estudiante",
+      "description": "Registrar datos de sesión para mostrar panel de bienvenida.",
+      "snippet": "let nombre = 'Ana';\nlet carrera = 'Sistemas';\nlet activo = true;"
+    }
+  ],
+  "condicionales": [
+    {
+      "title": "Control de acceso",
+      "description": "Permitir o denegar entrada según rol del usuario.",
+      "snippet": "if (rol === 'admin') {\n  permitir();\n} else {\n  denegar();\n}"
+    },
+    {
+      "title": "Descuento en carrito",
+      "description": "Aplicar promoción si el total supera un umbral.",
+      "snippet": "if (total >= 100) {\n  descuento = 0.1;\n}"
+    }
+  ],
+  "for": [
+    {
+      "title": "Generar reporte de notas",
+      "description": "Recorrer lista de notas y calcular promedios por estudiante.",
+      "snippet": "for (let i = 0; i < notas.length; i++) {\n  suma += notas[i];\n}"
+    },
+    {
+      "title": "Render de tabla",
+      "description": "Construir filas de una tabla HTML con datos de productos.",
+      "snippet": "for (let i = 0; i < productos.length; i++) {\n  renderFila(productos[i]);\n}"
+    }
+  ],
+  "while": [
+    {
+      "title": "Reintento de login",
+      "description": "Seguir solicitando contraseña hasta acertar o agotar intentos.",
+      "snippet": "while (intentos > 0 && !autenticado) {\n  intentarLogin();\n  intentos--;\n}"
+    },
+    {
+      "title": "Carga paginada",
+      "description": "Consumir API mientras haya páginas disponibles.",
+      "snippet": "while (hayMasPaginas) {\n  cargarPagina();\n}"
+    }
+  ],
+  "anidados": [
+    {
+      "title": "Asientos de cine",
+      "description": "Recorrer filas y columnas para marcar disponibilidad.",
+      "snippet": "for (let f = 0; f < filas; f++) {\n  for (let c = 0; c < cols; c++) {\n    revisarAsiento(f, c);\n  }\n}"
+    },
+    {
+      "title": "Matriz de notas",
+      "description": "Analizar notas por curso y por estudiante.",
+      "snippet": "for (let curso = 0; curso < m.length; curso++) {\n  for (let est = 0; est < m[curso].length; est++) {\n    procesar(m[curso][est]);\n  }\n}"
+    }
+  ],
+  "estructuras": [
+    {
+      "title": "Carrito de compras",
+      "description": "Gestionar productos de un carrito: agregar, actualizar y listar.",
+      "snippet": "let carrito = ['Laptop', 'Mouse'];\ncarrito.push('Teclado');"
+    },
+    {
+      "title": "Ranking de puntajes",
+      "description": "Guardar puntajes y mostrar top de jugadores.",
+      "snippet": "let puntajes = [1200, 980, 1500];\npuntajes.sort();"
+    }
+  ],
+  "funciones": [
+    {
+      "title": "Calculadora de IVA",
+      "description": "Encapsular fórmula para reutilizar en facturación.",
+      "snippet": "function calcularIva(subtotal) {\n  return subtotal * 0.19;\n}"
+    },
+    {
+      "title": "Validación de formulario",
+      "description": "Reutilizar lógica de validación en múltiples pantallas.",
+      "snippet": "function validarEmail(email) {\n  return email.includes('@');\n}"
+    }
+  ]
+}

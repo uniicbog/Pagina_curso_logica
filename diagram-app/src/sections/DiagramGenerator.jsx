@@ -27,6 +27,8 @@ const nodeTypes = {
   decision: DecisionNode,
 };
 
+const diagramStorageKey = 'labLogicaDiagramCode';
+
 const defaultCode = `// Tu algoritmo aquí
 let edad = 18;
 
@@ -39,12 +41,19 @@ if (edad >= 18) {
 console.log("Fin");`;
 
 const DiagramGenerator = () => {
-  const [code, setCode] = useState(defaultCode);
+  const [code, setCode] = useState(() => {
+    try {
+      return localStorage.getItem(diagramStorageKey) || defaultCode;
+    } catch {
+      return defaultCode;
+    }
+  });
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [showMermaid, setShowMermaid] = useState(true);
   const [mermaidSvg, setMermaidSvg] = useState('');
   const mermaidContainerRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     mermaid.initialize({
@@ -70,6 +79,20 @@ const DiagramGenerator = () => {
         fontSize: '14px',
       },
     });
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(diagramStorageKey, code);
+    } catch {
+      // Ignore storage write failures in restrictive environments.
+    }
+  }, [code]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(debounceRef.current);
+    };
   }, []);
 
   const onNodesChange = useCallback(
@@ -159,10 +182,10 @@ const DiagramGenerator = () => {
     `;
   };
 
-  const handleGenerate = async () => {
-    console.log("handleGenerate called with code:", code);
+  const handleGenerate = async (inputCode = code) => {
+    console.log("handleGenerate called with code:", inputCode);
     try {
-      const result = parseCodeToFlow(code);
+      const result = parseCodeToFlow(inputCode);
       setNodes([...result.nodes]);
       setEdges([...result.edges]);
 
@@ -190,7 +213,7 @@ const DiagramGenerator = () => {
   }, [showMermaid]);
 
   return (
-    <div className="w-full h-full flex flex-col lg:flex-row h-[calc(100vh-2rem)]">
+    <div className="learning-section w-full h-full flex flex-col lg:flex-row h-[calc(100vh-2rem)]">
       {/* Editor Panel */}
       <div className="w-full lg:w-1/3 h-1/2 lg:h-full flex flex-col border-r border-slate-700 bg-[#1e1e1e] shadow-2xl z-20">
         {/* Header */}
@@ -205,13 +228,19 @@ const DiagramGenerator = () => {
         <div className="flex-1 overflow-auto custom-scrollbar relative">
           <Editor
             value={code}
-            onValueChange={code => setCode(code)}
+            onValueChange={(nextCode) => {
+              setCode(nextCode);
+              window.clearTimeout(debounceRef.current);
+              debounceRef.current = window.setTimeout(() => {
+                handleGenerate(nextCode);
+              }, 1000);
+            }}
             highlight={code => highlight(code, languages.javascript)}
             padding={20}
-            className="font-mono text-sm min-h-full"
+            className="font-mono text-base min-h-full"
             style={{
               fontFamily: '"Fira Code", "Fira Mono", monospace',
-              fontSize: 14,
+              fontSize: 16,
               backgroundColor: '#1e1e1e',
               color: '#d4d4d4',
             }}

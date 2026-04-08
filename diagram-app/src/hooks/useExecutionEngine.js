@@ -1,24 +1,120 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { runInSandbox } from '../modules/sandboxRunner';
+import {
+  addAttempt,
+  getAdaptiveDifficulty,
+  getAttemptHistory,
+  getSavedCode,
+  saveCode,
+  setAdaptiveDifficulty
+} from '../modules/storage';
+import { translateError } from '../modules/errorTranslator';
+import { instrumentCode } from '../modules/codeInstrumenter';
+import { describeLine } from '../modules/executionNarrator';
 
-export const useExecutionEngine = (initialCode, validationFn) => {
-  const [code, setCode] = useState(initialCode);
+function cloneState(value) {
+  try {
+    return JSON.parse(JSON.stringify(value || {}));
+  } catch (_error) {
+    return { ...(value || {}) };
+  }
+}
+
+function getChangedKeys(before, after) {
+  const keys = new Set([
+    ...Object.keys(before || {}),
+    ...Object.keys(after || {})
+  ]);
+
+  return Array.from(keys).filter((key) => {
+    return JSON.stringify(before?.[key]) !== JSON.stringify(after?.[key]);
+  });
+}
+
+function normalizeBreakpoints(values) {
+  const list = Array.isArray(values) ? values : [];
+  const normalized = list
+    .map((item) => Number(item))
+    .filter((item) => Number.isInteger(item) && item > 0);
+  return Array.from(new Set(normalized)).sort((a, b) => a - b);
+}
+
+function computeAdaptiveDifficulty(attempts) {
+  if (!attempts.length) {
+    return 'basico';
+  }
+
+  const recent = attempts.slice(-6);
+  const successRate = recent.filter((item) => item.success).length / recent.length;
+  const avgTime = recent.reduce((acc, item) => acc + Number(item.timeMs || 0), 0) / recent.length;
+
+  if (recent.length >= 5 && successRate >= 0.85 && avgTime <= 45000) {
+    return 'reto';
+  }
+
+  if (recent.length >= 3 && successRate >= 0.6) {
+    return 'intermedio';
+  }
+
+  return 'basico';
+}
+
+export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
+  const { sectionKey = 'general' } = options;
+  const persistedCode = getSavedCode(sectionKey);
+
+  const [code, setCodeState] = useState(persistedCode ?? initialCode);
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState(null);
+  const [consoleMessages, setConsoleMessages] = useState([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [stepMode, setStepMode] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
-  
+  const [currentLine, setCurrentLine] = useState(null);
+  const [narrationHistory, setNarrationHistory] = useState([]);
+  const [variableTraces, setVariableTraces] = useState([]);
+  const [stateDiffs, setStateDiffs] = useState([]);
+  const [breakpoints, setBreakpointsState] = useState([]);
+  const [attempts, setAttempts] = useState(() => getAttemptHistory(sectionKey));
+  const [recommendedDifficulty, setRecommendedDifficulty] = useState(() => getAdaptiveDifficulty(sectionKey));
+
   const queueRef = useRef([]);
   const userStateRef = useRef({});
+  const currentLineRef = useRef(null);
+  const latestNarrationRef = useRef('');
+  const breakpointsRef = useRef([]);
+  const runStartedAtRef = useRef(0);
+
+  useEffect(() => {
+    breakpointsRef.current = breakpoints;
+  }, [breakpoints]);
+
+  const setCode = useCallback((nextCode) => {
+    setCodeState(nextCode);
+    saveCode(sectionKey, nextCode);
+  }, [sectionKey]);
+
+  const setBreakpoints = useCallback((nextBreakpoints) => {
+    setBreakpointsState(normalizeBreakpoints(nextBreakpoints));
+  }, []);
 
   const reset = useCallback(() => {
     setError(null);
     setFeedback(null);
+    setConsoleMessages([]);
     setCurrentStepIndex(0);
     setTotalSteps(0);
     setIsPlaying(false);
+    setCurrentLine(null);
+    setNarrationHistory([]);
+    setVariableTraces([]);
+    setStateDiffs([]);
     queueRef.current = [];
     userStateRef.current = {};
+    currentLineRef.current = null;
+    latestNarrationRef.current = '';
   }, []);
 
   const addToQueue = useCallback((action) => {
@@ -31,68 +127,186 @@ export const useExecutionEngine = (initialCode, validationFn) => {
 
   const runCode = useCallback((setupContextFn) => {
     reset();
-    try {
-      // Create context
-      const context = setupContextFn(addToQueue, updateUserState);
-      
-      // Create a function from the code string
-      const argNames = Object.keys(context);
-      const argValues = Object.values(context);
-      
-      // Basic safety check: prevent infinite loops in while/for if possible, 
-      // but for now we just run it. 
-      // Ideally we would transform the code to insert loop guards.
-      
-      const userFunction = new Function(...argNames, code);
-      
-      // Execute user code
-      userFunction(...argValues);
-      
-      // After execution, check validation
-      if (validationFn) {
-        // We might need to wait for the queue to finish if validation depends on visual state?
-        // But usually validation depends on the logical state captured during execution.
-        const result = validationFn(userStateRef.current);
-        setFeedback(result);
+    runStartedAtRef.current = Date.now();
+
+    const context = setupContextFn(addToQueue, updateUserState) || {};
+    const handlers = {};
+
+    Object.entries(context).forEach(([name, value]) => {
+      if (typeof value === 'function') {
+        handlers[name] = value;
       }
-      
-      setTotalSteps(queueRef.current.length);
-      
-      // Start playing
-      setIsPlaying(true);
-      
-    } catch (err) {
-      setError(err.message);
-      console.error(err);
-    }
-  }, [code, reset, addToQueue, updateUserState, validationFn]);
+
+      if (value && typeof value === 'object') {
+        Object.entries(value).forEach(([method, handler]) => {
+          if (typeof handler === 'function') {
+            handlers[`${name}.${method}`] = handler;
+          }
+        });
+      }
+    });
+
+    handlers.__traceLine = (line, text) => {
+      addToQueue(() => {
+        const lineNumber = Number(line) || null;
+        currentLineRef.current = lineNumber;
+        setCurrentLine(lineNumber);
+
+        const narrationText = describeLine(sectionKey, lineNumber, text);
+        latestNarrationRef.current = narrationText;
+
+        setNarrationHistory((prev) => [
+          ...prev,
+          {
+            line: lineNumber,
+            text: narrationText,
+            raw: text,
+            timestamp: Date.now()
+          }
+        ]);
+      });
+    };
+
+    runInSandbox({
+      code: instrumentCode(code),
+      handlers,
+      onConsole: (entry) => {
+        setConsoleMessages((prev) => [...prev, entry]);
+      },
+      onError: (message) => {
+        const translated = translateError(message);
+        setError(translated);
+
+        const attempt = {
+          timestamp: Date.now(),
+          code,
+          success: false,
+          timeMs: Date.now() - runStartedAtRef.current,
+          totalSteps: queueRef.current.length,
+          error: translated
+        };
+
+        addAttempt(sectionKey, attempt);
+        const nextAttempts = getAttemptHistory(sectionKey);
+        setAttempts(nextAttempts);
+
+        const nextDifficulty = computeAdaptiveDifficulty(nextAttempts);
+        setAdaptiveDifficulty(sectionKey, nextDifficulty);
+        setRecommendedDifficulty(nextDifficulty);
+      },
+      onComplete: () => {
+        let success = true;
+        if (validationFn) {
+          const result = validationFn(userStateRef.current);
+          setFeedback(result);
+          success = Boolean(result?.success);
+        }
+
+        setTotalSteps(queueRef.current.length);
+        setIsPlaying(!stepMode);
+
+        const attempt = {
+          timestamp: Date.now(),
+          code,
+          success,
+          timeMs: Date.now() - runStartedAtRef.current,
+          totalSteps: queueRef.current.length,
+          error: null
+        };
+
+        addAttempt(sectionKey, attempt);
+        const nextAttempts = getAttemptHistory(sectionKey);
+        setAttempts(nextAttempts);
+
+        const nextDifficulty = computeAdaptiveDifficulty(nextAttempts);
+        setAdaptiveDifficulty(sectionKey, nextDifficulty);
+        setRecommendedDifficulty(nextDifficulty);
+      }
+    });
+    return true;
+  }, [
+    code,
+    reset,
+    addToQueue,
+    updateUserState,
+    validationFn,
+    stepMode,
+    sectionKey
+  ]);
 
   const nextStep = useCallback(() => {
     if (currentStepIndex < queueRef.current.length) {
       const action = queueRef.current[currentStepIndex];
+      const before = cloneState(userStateRef.current);
+
       try {
         action();
-      } catch (e) {
-        console.error("Error executing step:", e);
+      } catch (_error) {
+        setError('No se pudo ejecutar un paso de la animacion.');
       }
-      setCurrentStepIndex(prev => prev + 1);
+
+      const after = cloneState(userStateRef.current);
+      const changedKeys = getChangedKeys(before, after);
+      const step = currentStepIndex + 1;
+      const line = currentLineRef.current;
+
+      setStateDiffs((prev) => [
+        ...prev,
+        {
+          step,
+          line,
+          before,
+          after,
+          changedKeys,
+          narration: latestNarrationRef.current || null
+        }
+      ]);
+
+      setVariableTraces((prev) => [
+        ...prev,
+        {
+          step,
+          line,
+          state: after,
+          changedKeys
+        }
+      ]);
+
+      setCurrentStepIndex((prev) => prev + 1);
+
+      if (line && breakpointsRef.current.includes(line)) {
+        setIsPlaying(false);
+      }
     } else {
       setIsPlaying(false);
     }
   }, [currentStepIndex]);
 
-  // Auto-play effect
+  const pause = useCallback(() => setIsPlaying(false), []);
+  const play = useCallback(() => {
+    if (!stepMode && currentStepIndex < totalSteps) {
+      setIsPlaying(true);
+    }
+  }, [currentStepIndex, totalSteps, stepMode]);
+
   useEffect(() => {
     let timer;
     if (isPlaying && currentStepIndex < totalSteps) {
+      const delay = Math.max(80, Math.floor(800 / playbackSpeed));
       timer = setTimeout(() => {
         nextStep();
-      }, 800); // Delay between steps
+      }, delay);
     } else if (currentStepIndex >= totalSteps) {
       setIsPlaying(false);
     }
     return () => clearTimeout(timer);
-  }, [isPlaying, currentStepIndex, totalSteps, nextStep]);
+  }, [isPlaying, currentStepIndex, totalSteps, playbackSpeed, nextStep]);
+
+  useEffect(() => {
+    if (stepMode) {
+      setIsPlaying(false);
+    }
+  }, [stepMode]);
 
   return {
     code,
@@ -100,11 +314,27 @@ export const useExecutionEngine = (initialCode, validationFn) => {
     runCode,
     reset,
     nextStep,
-    isDebugMode: false, // Deprecated
-    setIsDebugMode: () => {}, // Deprecated
+    pause,
+    play,
+    playbackSpeed,
+    setPlaybackSpeed,
+    stepMode,
+    setStepMode,
+    isDebugMode: false,
+    setIsDebugMode: () => {},
     isPlaying,
     currentStepIndex,
     totalSteps,
+    consoleMessages,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult: null,
     error,
     feedback
   };

@@ -3,7 +3,7 @@ import { Sparkles, ArrowRight } from 'lucide-react';
 
 const Home = ({ onNavigate }) => {
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="learning-section p-8 lg:p-10 max-w-6xl mx-auto">
       <header className="mb-12 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4 border border-primary/20">
           <Sparkles size={14} />

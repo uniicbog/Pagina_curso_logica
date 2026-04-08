@@ -1,29 +1,24 @@
-# Laboratorio de Lógica (Plantilla)
+# Laboratorio de Logica (React Unificado)
 
-Plantilla educativa con secciones para que los estudiantes escriban y ejecuten pequeños fragmentos de JavaScript relacionados con conceptos de programación básica. Se usó la opción A para editor simple (textarea) y animaciones predefinidas. No se implementó un motor avanzado de ejecución (paso 3 omitido).
+Este repositorio ahora usa una sola aplicacion activa: la app React en `diagram-app/`.
 
-## Cómo usar
-1. Abre `index.html` en tu navegador.
-2. Usa la barra lateral para elegir el concepto.
-3. Escribe tu código en el textarea de la sección.
-4. Presiona **Ejecutar** y observa la animación en el panel derecho.
+La version inicial en HTML/JS vanilla fue retirada para evitar despliegues duplicados o inconsistentes.
 
-## Funciones de animación disponibles
-- `animateVariable(nombre, valor)`
-- `animateIfElse(condicion)`
-- `animateFor(iteracion, total)`
-- `animateWhile(iteracion, limite)`
-- `animateNested(fila, col, limite)`
-- `animateArray(arreglo)`
-- `animateFunction(entrada, salida)`
+## Estructura actual
 
-Ejemplos pre-cargados se encuentran en cada sección dentro del textarea.
+- `diagram-app/`: aplicacion principal (React + Vite)
+- `index.html` (raiz): redireccion al build de React en `diagram-app/dist/index.html`
 
-## Notas para docentes
-- La ejecución es simple con `new Function` y sin sandbox avanzado.
-- Cada clic en "Ejecutar" limpia y redibuja la animación de la sección.
-- Si deseas más seguridad, considera mover la ejecución a un iframe sandbox o Web Worker (no incluido por solicitud).
+## Comandos (desde la raiz)
 
-## Ediciones permitidas para estudiantes
-- Solo el contenido de cada `<textarea>`.
-- Pueden llamar a las funciones de animación mencionadas arriba.
+- `npm run dev`: inicia la app React (`diagram-app`)
+- `npm run build`: compila la app React
+- `npm run preview`: publica una vista previa del build React
+
+## Despliegue
+
+Despliega el contenido compilado de `diagram-app/dist`.
+
+## Nota
+
+Si abres `index.html` en la raiz, redirige automaticamente al build React.

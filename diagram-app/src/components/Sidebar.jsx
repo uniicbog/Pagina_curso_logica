@@ -28,10 +28,14 @@ const menuItems = [
   { id: 'material', label: 'Material Didáctico', icon: Youtube },
 ];
 
-const Sidebar = ({ activeSection, onNavigate }) => {
+const Sidebar = ({ activeSection, onNavigate, isOpen, onClose }) => {
   return (
-    <aside className="w-64 bg-secondary border-r border-slate-800 flex flex-col h-screen fixed left-0 top-0 z-10">
-      <div className="h-24 border-b border-slate-800 flex items-center justify-center p-4 bg-black/20">
+    <aside
+      className={`w-64 flex flex-col h-screen fixed left-0 top-0 z-30 transition-transform duration-300 md:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } bg-secondary border-r border-slate-800`}
+    >
+      <div className="h-24 flex items-center justify-center p-4 border-b border-slate-800 bg-black/20">
         <img 
           src={logo} 
           alt="Logo Institucional" 
@@ -47,7 +51,10 @@ const Sidebar = ({ activeSection, onNavigate }) => {
           return (
             <button
               key={item.id}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => {
+                onNavigate(item.id);
+                onClose?.();
+              }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive 
                   ? 'bg-primary text-white shadow-lg shadow-primary/20' 
@@ -62,8 +69,8 @@ const Sidebar = ({ activeSection, onNavigate }) => {
       </nav>
 
       <div className="p-4 border-t border-slate-800">
-        <div className="bg-slate-800/50 rounded-lg p-3">
-          <p className="text-xs text-slate-500 text-center">
+        <div className="rounded-lg p-3 bg-slate-800/50">
+          <p className="text-xs text-center text-slate-500">
             © 2024 Unidad de Informática
           </p>
         </div>

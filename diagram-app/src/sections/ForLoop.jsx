@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
 import { Repeat } from 'lucide-react';
 import { useExecutionEngine } from '../hooks/useExecutionEngine';
 import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 3. Ciclo For
 // Repite una acción un número determinado de veces
@@ -31,15 +32,28 @@ const ForLoop = () => {
     setCode, 
     runCode, 
     reset, 
-    nextStep, 
-    isDebugMode, 
-    setIsDebugMode, 
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
     isPlaying, 
     currentStepIndex, 
     totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
     error, 
     feedback 
-  } = useExecutionEngine(defaultCode, validationFn);
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'for-loop' });
 
   const handleRun = () => {
     setSteps([]);
@@ -60,12 +74,13 @@ const ForLoop = () => {
   };
 
   const handleResetWrapper = () => {
+    setCode(defaultCode);
     setSteps([]);
     reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-orange-400 mb-2">
           <Repeat size={20} />
@@ -73,12 +88,13 @@ const ForLoop = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Ciclo For</h2>
         <p className="text-slate-400 mb-6">Domina la repetición de tareas controlada.</p>
+        <TopicLearningToolkit sectionKey="for" title="Ciclo For" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
                 <h3 className="text-xl font-semibold text-white mb-2">¿Qué es un Ciclo For?</h3>
                 <p className="leading-relaxed">
-                    Imagina que tienes que dar 5 vueltas a una cancha. Sabes exactamente cuántas vueltas son: 1, 2, 3, 4 y 5. 
+              Imagina que tienes que dar 5 vueltas a una cancha. Sabes exactamente cuántas vueltas son: 1, 2, 3, 4 y 5.
                     El <strong>Ciclo For</strong> es la herramienta perfecta para situaciones donde sabes de antemano cuántas veces quieres repetir una acción.
                 </p>
             </div>
@@ -92,6 +108,11 @@ const ForLoop = () => {
                     <li><strong>Condición:</strong> Hasta cuándo sigue (ej: <code className="text-orange-400">i &lt; 5</code>).</li>
                     <li><strong>Actualización:</strong> Cómo cambia en cada paso (ej: <code className="text-orange-400">i++</code>, que significa sumar 1).</li>
                 </ol>
+                  <p className="leading-relaxed mt-3">
+                    Mentalmente, puedes leer un for así: "inicia en un valor, verifica si puede entrar, ejecuta el bloque,
+                    actualiza el contador y repite". Esta secuencia te ayuda a detectar errores clásicos como saltos de rango,
+                    bucles infinitos o iteraciones de más.
+                  </p>
             </div>
 
             <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
@@ -108,6 +129,20 @@ const ForLoop = () => {
                     </code>
                 </div>
             </div>
+
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                    Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  PARA i <- 1 HASTA 5 HACER
+    mostrar "Iteración número: " + i
+  FIN_PARA
+FIN`}
+                </pre>
+            </div>
         </div>
       </header>
 
@@ -119,18 +154,10 @@ const ForLoop = () => {
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
           
@@ -139,12 +166,24 @@ const ForLoop = () => {
              <ExecutionControls 
                 onRun={handleRun}
                 onReset={handleResetWrapper}
-                onStep={nextStep}
-                isDebugMode={isDebugMode}
-                setIsDebugMode={setIsDebugMode}
+               onStep={nextStep}
+               onPause={pause}
+               onResume={play}
+               stepMode={stepMode}
+               onStepModeChange={setStepMode}
                 isPlaying={isPlaying}
-                canStep={currentStepIndex < totalSteps}
-                isFinished={currentStepIndex >= totalSteps && totalSteps > 0}
+               currentStep={currentStepIndex}
+               totalSteps={totalSteps}
+               currentLine={currentLine}
+               breakpoints={breakpoints}
+               onBreakpointsChange={setBreakpoints}
+               playbackSpeed={playbackSpeed}
+               onSpeedChange={setPlaybackSpeed}
+             />
+             <AdaptiveExerciseBank
+               sectionKey="for"
+               recommendedDifficulty={recommendedDifficulty}
+               onLoadCode={setCode}
              />
           </div>
         </div>
@@ -192,10 +231,19 @@ const ForLoop = () => {
                 })}
               </div>
             )}
-            <Feedback result={feedback} error={error} />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="for" />
     </div>
   );
 };

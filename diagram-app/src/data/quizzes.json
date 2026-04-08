@@ -1,0 +1,184 @@
+{
+  "variables": {
+    "title": "Mini quiz: Variables",
+    "questions": [
+      {
+        "id": "v1",
+        "question": "¿Qué instrucción declara una variable en JavaScript moderno?",
+        "options": ["let", "goto", "print", "read"],
+        "correctIndex": 0,
+        "explanation": "let declara variables con ámbito de bloque."
+      },
+      {
+        "id": "v2",
+        "question": "¿Desde qué índice inicia un array?",
+        "options": ["1", "0", "-1", "Depende"],
+        "correctIndex": 1,
+        "explanation": "En JavaScript, el primer índice es 0."
+      },
+      {
+        "id": "v3",
+        "question": "¿Qué tipo devuelve true/false?",
+        "options": ["string", "number", "boolean", "array"],
+        "correctIndex": 2,
+        "explanation": "Los valores lógicos pertenecen al tipo boolean."
+      }
+    ]
+  },
+  "condicionales": {
+    "title": "Mini quiz: Condicionales",
+    "questions": [
+      {
+        "id": "c1",
+        "question": "if/else se usa para...",
+        "options": ["Repetir", "Tomar decisiones", "Ordenar arrays", "Importar módulos"],
+        "correctIndex": 1,
+        "explanation": "if/else ejecuta rutas según una condición."
+      },
+      {
+        "id": "c2",
+        "question": "Una condición evalúa a...",
+        "options": ["Texto", "Número", "Verdadero/Falso", "Objeto"],
+        "correctIndex": 2,
+        "explanation": "Toda condición produce un booleano."
+      },
+      {
+        "id": "c3",
+        "question": "¿Qué operador compara igualdad estricta?",
+        "options": ["==", "=", "===", "!="],
+        "correctIndex": 2,
+        "explanation": "=== compara valor y tipo."
+      }
+    ]
+  },
+  "for": {
+    "title": "Mini quiz: For",
+    "questions": [
+      {
+        "id": "f1",
+        "question": "¿Qué parte de un for aumenta el contador?",
+        "options": ["Inicialización", "Condición", "Actualización", "Bloque"],
+        "correctIndex": 2,
+        "explanation": "La actualización modifica el iterador."
+      },
+      {
+        "id": "f2",
+        "question": "for es ideal cuando...",
+        "options": ["No conoces iteraciones", "Conoces cuántas veces repetir", "No hay condición", "No hay datos"],
+        "correctIndex": 1,
+        "explanation": "for sirve cuando el número de iteraciones es controlable."
+      },
+      {
+        "id": "f3",
+        "question": "¿Qué error es común en ciclos?",
+        "options": ["Off-by-one", "Compilación C", "No usar imports", "Ninguno"],
+        "correctIndex": 0,
+        "explanation": "Off-by-one aparece cuando el límite está mal definido."
+      }
+    ]
+  },
+  "while": {
+    "title": "Mini quiz: While",
+    "questions": [
+      {
+        "id": "w1",
+        "question": "while repite mientras...",
+        "options": ["La condición sea verdadera", "El índice sea 0", "Siempre", "Nunca"],
+        "correctIndex": 0,
+        "explanation": "El while depende de una condición booleana."
+      },
+      {
+        "id": "w2",
+        "question": "¿Qué evita bucles infinitos?",
+        "options": ["Actualizar la variable de control", "Quitar condición", "No usar llaves", "Más console.log"],
+        "correctIndex": 0,
+        "explanation": "Debe cambiar el estado que participa en la condición."
+      },
+      {
+        "id": "w3",
+        "question": "while es útil cuando...",
+        "options": ["No sabes cuántas iteraciones exactas habrá", "Siempre son 5", "No hay condición", "No hay datos"],
+        "correctIndex": 0,
+        "explanation": "while responde a una condición dinámica."
+      }
+    ]
+  },
+  "anidados": {
+    "title": "Mini quiz: Ciclos anidados",
+    "questions": [
+      {
+        "id": "n1",
+        "question": "Un ciclo anidado es...",
+        "options": ["Un if dentro de while", "Un ciclo dentro de otro", "Dos variables", "Un array"],
+        "correctIndex": 1,
+        "explanation": "Anidado significa que un loop está dentro de otro loop."
+      },
+      {
+        "id": "n2",
+        "question": "¿Dónde se usan mucho?",
+        "options": ["Matrices/tablas", "Strings vacíos", "Imports", "Eventos de red"],
+        "correctIndex": 0,
+        "explanation": "Son comunes para recorrer estructuras de dos dimensiones."
+      },
+      {
+        "id": "n3",
+        "question": "Si filas=2 y columnas=3, ¿cuántas celdas?",
+        "options": ["5", "6", "3", "2"],
+        "correctIndex": 1,
+        "explanation": "Se calcula filas x columnas."
+      }
+    ]
+  },
+  "estructuras": {
+    "title": "Mini quiz: Arrays",
+    "questions": [
+      {
+        "id": "a1",
+        "question": "¿Qué método agrega al final?",
+        "options": ["shift", "pop", "push", "splice"],
+        "correctIndex": 2,
+        "explanation": "push inserta al final del arreglo."
+      },
+      {
+        "id": "a2",
+        "question": "¿Cómo accedes al primer elemento?",
+        "options": ["arr(0)", "arr[1]", "arr[0]", "arr.first"],
+        "correctIndex": 2,
+        "explanation": "El primer índice es 0."
+      },
+      {
+        "id": "a3",
+        "question": "Un array se usa para...",
+        "options": ["Guardar un solo valor", "Agrupar valores ordenados", "Crear condicionales", "Compilar código"],
+        "correctIndex": 1,
+        "explanation": "Los arrays agrupan múltiples elementos."
+      }
+    ]
+  },
+  "funciones": {
+    "title": "Mini quiz: Funciones",
+    "questions": [
+      {
+        "id": "fn1",
+        "question": "Una función permite...",
+        "options": ["Reutilizar lógica", "Solo imprimir", "No recibir parámetros", "Evitar variables"],
+        "correctIndex": 0,
+        "explanation": "Las funciones encapsulan y reutilizan lógica."
+      },
+      {
+        "id": "fn2",
+        "question": "¿Qué palabra devuelve un valor?",
+        "options": ["break", "return", "yield", "const"],
+        "correctIndex": 1,
+        "explanation": "return entrega un resultado."
+      },
+      {
+        "id": "fn3",
+        "question": "Los parámetros representan...",
+        "options": ["Entradas de la función", "Errores", "Variables globales", "Imports"],
+        "correctIndex": 0,
+        "explanation": "Son datos de entrada para procesar."
+      }
+    ]
+  }
+}

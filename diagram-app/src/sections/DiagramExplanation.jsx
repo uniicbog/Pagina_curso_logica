@@ -3,7 +3,7 @@ import { BookOpen } from 'lucide-react';
 
 const DiagramExplanation = () => {
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto">
       <header className="mb-12 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4 border border-primary/20">
           <BookOpen size={14} />
@@ -143,6 +143,40 @@ const DiagramExplanation = () => {
         </div>
 
       </div>
+
+      <section className="mt-10 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl">
+        <h3 className="text-2xl font-bold text-white mb-3">De la idea al algoritmo: pseudocódigo</h3>
+        <p className="text-slate-300 leading-relaxed mb-4">
+          Antes de dibujar, conviene escribir la lógica en pseudocódigo. El pseudocódigo no depende de un lenguaje de programación,
+          pero sí obliga a ordenar pasos, decisiones y repeticiones. Después, cada bloque se transforma en un símbolo del diagrama.
+        </p>
+
+        <div className="grid lg:grid-cols-2 gap-4">
+          <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4">
+            <h4 className="font-semibold text-white mb-2">Ejemplo de pseudocódigo</h4>
+            <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  leer edad
+  SI edad >= 18 ENTONCES
+    mostrar "Puede votar"
+  SINO
+    mostrar "No puede votar"
+  FIN_SI
+FIN`}
+            </pre>
+          </div>
+
+          <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4">
+            <h4 className="font-semibold text-white mb-2">Traducción al diagrama</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li>Inicio/Fin: marca el comienzo y cierre del algoritmo.</li>
+              <li>Entrada/Salida: leer edad y mostrar mensajes.</li>
+              <li>Decisión: condición edad &gt;= 18.</li>
+              <li>Proceso: acciones de cada rama (sí / no).</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

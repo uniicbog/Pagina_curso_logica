@@ -1,0 +1,65 @@
+{
+  "variables": {
+    "pseudocode": "INICIO\n  definir heroe <- 'Link'\n  definir vidas <- 3\n  mostrar heroe\nFIN",
+    "javascript": "let heroe = 'Link';\nlet vidas = 3;\nconsole.log(heroe);",
+    "mapping": [
+      "definir -> let/const",
+      "mostrar -> console.log",
+      "<- -> ="
+    ]
+  },
+  "condicionales": {
+    "pseudocode": "SI edad >= 18 ENTONCES\n  mostrar 'Mayor'\nSINO\n  mostrar 'Menor'\nFIN_SI",
+    "javascript": "if (edad >= 18) {\n  console.log('Mayor');\n} else {\n  console.log('Menor');\n}",
+    "mapping": [
+      "SI ... ENTONCES -> if (...) {",
+      "SINO -> } else {",
+      "FIN_SI -> }"
+    ]
+  },
+  "for": {
+    "pseudocode": "PARA i <- 0 HASTA 4 HACER\n  mostrar i\nFIN_PARA",
+    "javascript": "for (let i = 0; i < 5; i++) {\n  console.log(i);\n}",
+    "mapping": [
+      "PARA -> for",
+      "HASTA -> condición de parada",
+      "FIN_PARA -> }"
+    ]
+  },
+  "while": {
+    "pseudocode": "MIENTRAS energia > 0 HACER\n  energia <- energia - 1\nFIN_MIENTRAS",
+    "javascript": "while (energia > 0) {\n  energia = energia - 1;\n}",
+    "mapping": [
+      "MIENTRAS -> while",
+      "<- -> =",
+      "FIN_MIENTRAS -> }"
+    ]
+  },
+  "anidados": {
+    "pseudocode": "PARA f <- 0 HASTA filas-1\n  PARA c <- 0 HASTA cols-1\n    mostrar f,c\n  FIN_PARA\nFIN_PARA",
+    "javascript": "for (let f = 0; f < filas; f++) {\n  for (let c = 0; c < cols; c++) {\n    console.log(f, c);\n  }\n}",
+    "mapping": [
+      "PARA externo -> for externo",
+      "PARA interno -> for interno",
+      "mostrar -> console.log"
+    ]
+  },
+  "estructuras": {
+    "pseudocode": "definir frutas <- [Manzana, Banana]\nagregar Naranja a frutas\nmostrar frutas",
+    "javascript": "let frutas = ['Manzana', 'Banana'];\nfrutas.push('Naranja');\nconsole.log(frutas);",
+    "mapping": [
+      "lista -> array",
+      "agregar -> push",
+      "mostrar -> console.log"
+    ]
+  },
+  "funciones": {
+    "pseudocode": "FUNCIÓN sumar(a,b)\n  RETORNAR a+b\nFIN_FUNCIÓN",
+    "javascript": "function sumar(a, b) {\n  return a + b;\n}",
+    "mapping": [
+      "FUNCIÓN -> function",
+      "RETORNAR -> return",
+      "FIN_FUNCIÓN -> }"
+    ]
+  }
+}

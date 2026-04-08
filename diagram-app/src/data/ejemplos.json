@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "ejemplos": {
+    "variables": {
+      "titulo": "Variables iniciales",
+      "codigo": "let jugador = 'Luna';\nlet vidas = 3;\nlet activo = true;\n\ncrearVariable('jugador', jugador);\ncrearVariable('vidas', vidas);\ncrearVariable('activo', activo);"
+    },
+    "condicionales": {
+      "titulo": "Decision por puntaje",
+      "codigo": "let puntaje = 75;\nif (puntaje >= 60) {\n  animarCondicional(true, 'puntaje >= 60');\n} else {\n  animarCondicional(false, 'puntaje >= 60');\n}"
+    },
+    "for": {
+      "titulo": "Conteo basico",
+      "codigo": "for (let i = 1; i <= 5; i++) {\n  animarCicloFor(i, 5);\n}"
+    }
+  }
+}

@@ -1,4 +1,11 @@
 {
+  "name": "laboratorio-logica",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix diagram-app run dev",
+    "build": "npm --prefix diagram-app run build",
+    "preview": "npm --prefix diagram-app run preview"
+  },
   "dependencies": {
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.559.0",

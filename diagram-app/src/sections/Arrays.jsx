@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import { Play, RotateCcw, Grid } from 'lucide-react';
+import { Grid } from 'lucide-react';
+import { useExecutionEngine } from '../hooks/useExecutionEngine';
+import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 6. Arrays (Arreglos)
 // Listas ordenadas de datos
@@ -22,47 +25,69 @@ frutas.push("Naranja");
 animarArray(frutas);`;
 
 const Arrays = () => {
-  const [code, setCode] = useState(defaultCode);
   const [snapshots, setSnapshots] = useState([]);
-  const [error, setError] = useState(null);
+
+  const validationFn = (state) => {
+    if ((state.snapshots || 0) > 0) {
+      return { success: true, message: `Excelente, capturaste ${state.snapshots} estados del arreglo.` };
+    }
+    return { success: false, message: 'Usa animarArray para visualizar cada cambio del arreglo.' };
+  };
+
+  const {
+    code,
+    setCode,
+    runCode,
+    reset,
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
+    isPlaying,
+    currentStepIndex,
+    totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
+    error,
+    feedback
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'arrays' });
 
   const handleRun = () => {
     setSnapshots([]);
-    setError(null);
 
-    try {
-      // Mock function to capture array states
-      const animarArray = (arr) => {
-        // Deep copy the array to capture state at this moment
-        setSnapshots(prev => [...prev, JSON.parse(JSON.stringify(arr))]);
-      };
-
-      // Mock console.log
-      const console = { log: () => {} };
-
-      // Execute user code
-      const runUserCode = new Function('animarArray', 'console', `
-        try {
-          ${code}
-        } catch (e) {
-          throw e;
+    runCode((addToQueue, updateUserState) => {
+      let snapshotCount = 0;
+      return {
+        animarArray: (arr) => {
+          snapshotCount += 1;
+          updateUserState({ snapshots: snapshotCount });
+          addToQueue(() => {
+            const snapshot = Array.isArray(arr) ? [...arr] : arr;
+            setSnapshots((prev) => [...prev, snapshot]);
+          });
         }
-      `);
-
-      runUserCode(animarArray, console);
-    } catch (err) {
-      setError(err.message);
-    }
+      };
+    });
   };
 
   const handleReset = () => {
     setCode(defaultCode);
     setSnapshots([]);
-    setError(null);
+    reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-cyan-400 mb-2">
           <Grid size={20} />
@@ -70,21 +95,27 @@ const Arrays = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Arrays</h2>
         <p className="text-slate-400 mb-6">Organiza colecciones de datos en una sola variable.</p>
+        <TopicLearningToolkit sectionKey="estructuras" title="Arrays" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
                 <h3 className="text-xl font-semibold text-white mb-2">¿Qué es un Array?</h3>
                 <p className="leading-relaxed">
-                    Imagina una lista de compras, una fila de casilleros en el colegio o un tren con varios vagones. 
+              Imagina una lista de compras, una fila de casilleros en el colegio o un tren con varios vagones.
                     En todos estos casos, tienes una colección ordenada de elementos. Un <strong>Array</strong> (o arreglo) es exactamente eso en programación.
                 </p>
             </div>
             
             <div>
                 <p className="leading-relaxed">
-                    Es una variable especial que puede guardar múltiples valores al mismo tiempo. Cada valor tiene una posición numerada (índice), 
+              Es una variable especial que puede guardar múltiples valores al mismo tiempo. Cada valor tiene una posición numerada (índice),
                     empezando siempre desde el <strong>0</strong>.
                 </p>
+            <p className="leading-relaxed mt-3">
+              La idea más importante es que índice y valor van juntos: primero decides qué posición quieres consultar o modificar,
+              luego aplicas la operación (leer, actualizar, insertar o eliminar). Este modelo te permite manejar datos en bloque
+              sin crear una variable distinta para cada elemento.
+            </p>
             </div>
 
             <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
@@ -115,6 +146,25 @@ const Arrays = () => {
                     </div>
                 </div>
             </div>
+
+              <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                  <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                  Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  definir frutas como lista <- ["Manzana", "Banana", "Cereza"]
+  mostrar frutas
+
+  frutas[1] <- "Uva"
+  mostrar frutas
+
+  agregar "Naranja" a frutas
+  mostrar frutas
+FIN`}
+                </pre>
+              </div>
         </div>
       </header>
 
@@ -123,44 +173,47 @@ const Arrays = () => {
         <div className="flex flex-col bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
           <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-slate-700">
             <span className="text-slate-300 font-medium text-sm">Editor de Código</span>
-            <div className="flex gap-2">
-              <button 
-                onClick={handleReset}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
-                title="Restablecer código"
-              >
-                <RotateCcw size={16} />
-              </button>
-              <button 
-                onClick={handleRun}
-                className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                <Play size={16} />
-                Ejecutar
-              </button>
-            </div>
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
-          {error && (
-            <div className="p-4 bg-red-900/20 border-t border-red-900/50 text-red-400 text-sm font-mono">
-              Error: {error}
-            </div>
-          )}
+          <div className="p-4 bg-[#252526] border-t border-slate-700">
+            <ExecutionControls
+              onRun={handleRun}
+              onReset={handleReset}
+              onStep={nextStep}
+              onPause={pause}
+              onResume={play}
+              stepMode={stepMode}
+              onStepModeChange={setStepMode}
+              isPlaying={isPlaying}
+              currentStep={currentStepIndex}
+              totalSteps={totalSteps}
+              currentLine={currentLine}
+              breakpoints={breakpoints}
+              onBreakpointsChange={setBreakpoints}
+              playbackSpeed={playbackSpeed}
+              onSpeedChange={setPlaybackSpeed}
+            />
+            <AdaptiveExerciseBank
+              sectionKey="estructuras"
+              recommendedDifficulty={recommendedDifficulty}
+              onLoadCode={setCode}
+            />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
+          </div>
         </div>
 
         {/* Visualization Column */}
@@ -199,6 +252,8 @@ const Arrays = () => {
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="estructuras" />
     </div>
   );
 };

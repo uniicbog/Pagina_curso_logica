@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "terminos": [
+    {
+      "id": "variable",
+      "termino": "Variable",
+      "definicion": "Espacio con nombre donde se guarda un valor que puede cambiar durante el programa.",
+      "categoria": "fundamentos"
+    },
+    {
+      "id": "condicional",
+      "termino": "Condicional",
+      "definicion": "Estructura que permite decidir un camino segun una condicion verdadera o falsa.",
+      "categoria": "control-flujo"
+    },
+    {
+      "id": "iteracion",
+      "termino": "Iteracion",
+      "definicion": "Cada repeticion individual dentro de un ciclo.",
+      "categoria": "control-flujo"
+    },
+    {
+      "id": "funcion",
+      "termino": "Funcion",
+      "definicion": "Bloque reutilizable que recibe datos, procesa y puede devolver un resultado.",
+      "categoria": "modularidad"
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "version": "1.0.0",
+  "niveles": ["basico", "intermedio", "reto"],
+  "secciones": {
+    "variables": [
+      {
+        "id": "var-basico-1",
+        "nivel": "basico",
+        "titulo": "Crea tus primeras variables",
+        "enunciado": "Declara las variables nombre, edad y estudiante con valores de ejemplo y visualizalas en pantalla.",
+        "pistas": [
+          "Usa let para declarar variables.",
+          "Llama crearVariable(nombre, valor) por cada dato declarado."
+        ],
+        "codigoBase": "let nombre = \"Ana\";\nlet edad = 18;\nlet estudiante = true;\n\n// Completa aqui",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "nombre-presente",
+              "descripcion": "La variable nombre debe existir.",
+              "criterio": {
+                "variable": "nombre",
+                "operador": "exists"
+              },
+              "feedbackError": "Te falta declarar la variable nombre."
+            },
+            {
+              "id": "edad-rango",
+              "descripcion": "La variable edad debe ser numerica y mayor a 0.",
+              "criterio": {
+                "variable": "edad",
+                "operador": ">",
+                "valor": 0
+              },
+              "feedbackError": "La variable edad debe ser un numero mayor a 0."
+            },
+            {
+              "id": "estudiante-bool",
+              "descripcion": "La variable estudiante debe ser booleana.",
+              "criterio": {
+                "variable": "estudiante",
+                "operador": "type",
+                "valor": "boolean"
+              },
+              "feedbackError": "La variable estudiante debe ser true o false."
+            }
+          ],
+          "feedbackExito": "Excelente. Ya dominas declaraciones basicas de variables."
+        }
+      }
+    ],
+    "condicionales": [
+      {
+        "id": "cond-int-1",
+        "nivel": "intermedio",
+        "titulo": "Decision por energia",
+        "enunciado": "Evalua una variable energia y ejecuta animarCondicional con true o false segun corresponda.",
+        "pistas": [
+          "Recuerda usar if (condicion) { ... } else { ... }.",
+          "La condicion debe comparar energia > 50."
+        ],
+        "codigoBase": "let energia = 40;\n\n// Completa el if/else",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "llamada-animacion",
+              "descripcion": "Debe llamarse animarCondicional al menos una vez.",
+              "criterio": {
+                "eventoAnimacion": "animarCondicional",
+                "operador": "count>=",
+                "valor": 1
+              },
+              "feedbackError": "No se detecto la animacion de condicional."
+            }
+          ],
+          "feedbackExito": "Muy bien. Aplicaste correctamente una bifurcacion logica."
+        }
+      }
+    ],
+    "for": [
+      {
+        "id": "for-reto-1",
+        "nivel": "reto",
+        "titulo": "Iterador exacto",
+        "enunciado": "Recorre un ciclo for del 1 al 5 e invoca animarCicloFor en cada iteracion.",
+        "pistas": [
+          "La sintaxis base es: for (inicio; condicion; incremento) { ... }.",
+          "Tu contador debe empezar en 1 y terminar en 5."
+        ],
+        "codigoBase": "// Completa un ciclo for\n",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "iteraciones-cinco",
+              "descripcion": "Deben emitirse 5 eventos de ciclo for.",
+              "criterio": {
+                "eventoAnimacion": "animarCicloFor",
+                "operador": "count==",
+                "valor": 5
+              },
+              "feedbackError": "Tu ciclo no genero exactamente 5 iteraciones."
+            }
+          ],
+          "feedbackExito": "Reto superado. Controlaste el ciclo con precision."
+        }
+      }
+    ],
+    "while": [
+      {
+        "id": "while-basico-1",
+        "nivel": "basico",
+        "titulo": "Cuenta regresiva con while",
+        "enunciado": "Crea un while que inicie en 3 y termine en 0 usando animarCicloWhile en cada paso.",
+        "pistas": [
+          "Declara una variable contador y disminuyela en cada iteracion.",
+          "Recuerda enviar false al final para mostrar que el ciclo termina."
+        ],
+        "codigoBase": "let contador = 3;\n\n// Completa el ciclo while",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "while-eventos",
+              "descripcion": "Debe llamar animarCicloWhile varias veces.",
+              "criterio": {
+                "eventoAnimacion": "animarCicloWhile",
+                "operador": "count>=",
+                "valor": 3
+              },
+              "feedbackError": "No se detectaron suficientes pasos de while."
+            }
+          ],
+          "feedbackExito": "Buen trabajo. Ya controlas ciclos con condicion dinamica."
+        }
+      }
+    ],
+    "anidados": [
+      {
+        "id": "anidados-intermedio-1",
+        "nivel": "intermedio",
+        "titulo": "Recorrido de mini matriz",
+        "enunciado": "Usa dos ciclos para recorrer una matriz 2x2 y llama animarAnidado por cada celda.",
+        "pistas": [
+          "Usa un for externo para filas y otro interno para columnas.",
+          "Llama animarAnidado(f, c, 2, 2)."
+        ],
+        "codigoBase": "// Recorre una matriz 2x2\n",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "anidados-llamadas",
+              "descripcion": "Deben emitirse cuatro eventos anidados.",
+              "criterio": {
+                "eventoAnimacion": "animarAnidado",
+                "operador": "count==",
+                "valor": 4
+              },
+              "feedbackError": "El recorrido no cubrio las 4 celdas esperadas."
+            }
+          ],
+          "feedbackExito": "Excelente. Dominas el patron de doble iteracion."
+        }
+      }
+    ],
+    "estructuras": [
+      {
+        "id": "arrays-basico-1",
+        "nivel": "basico",
+        "titulo": "Visualiza un arreglo",
+        "enunciado": "Declara un arreglo con 4 valores numericos y muestralo con animarArray.",
+        "pistas": [
+          "Ejemplo: let datos = [10, 20, 30, 40];",
+          "Llama animarArray(datos)."
+        ],
+        "codigoBase": "// Crea un arreglo de 4 numeros\n",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "array-render",
+              "descripcion": "Debe llamarse animarArray una vez.",
+              "criterio": {
+                "eventoAnimacion": "animarArray",
+                "operador": "count>=",
+                "valor": 1
+              },
+              "feedbackError": "No se detecto la visualizacion de arreglo."
+            }
+          ],
+          "feedbackExito": "Perfecto. Convertiste datos lineales en estructura visual."
+        }
+      }
+    ],
+    "funciones": [
+      {
+        "id": "func-reto-1",
+        "nivel": "reto",
+        "titulo": "Funcion con entrada y salida",
+        "enunciado": "Crea una funcion que reciba un numero, lo duplique y envia el resultado a animarFuncion.",
+        "pistas": [
+          "Define una funcion duplicar(n) que retorne n * 2.",
+          "Guarda el resultado y llama animarFuncion('duplicar', [valor], resultado)."
+        ],
+        "codigoBase": "// Crea la funcion duplicar\n",
+        "validacion": {
+          "tipo": "heuristica",
+          "reglas": [
+            {
+              "id": "func-evento",
+              "descripcion": "Debe invocarse animarFuncion al menos una vez.",
+              "criterio": {
+                "eventoAnimacion": "animarFuncion",
+                "operador": "count>=",
+                "valor": 1
+              },
+              "feedbackError": "No se detecto la ejecucion de la funcion visual."
+            }
+          ],
+          "feedbackExito": "Reto logrado. Tu funcion procesa y devuelve resultados correctamente."
+        }
+      }
+    ]
+  }
+}

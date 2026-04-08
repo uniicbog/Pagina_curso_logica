@@ -1,0 +1,67 @@
+{
+  "variables": {
+    "title": "Mapa conceptual: Variables",
+    "nodes": ["Declaración", "Asignación", "Tipo de dato", "Uso en expresiones"],
+    "links": [
+      "Declaración -> Asignación",
+      "Asignación -> Tipo de dato",
+      "Tipo de dato -> Uso en expresiones"
+    ]
+  },
+  "condicionales": {
+    "title": "Mapa conceptual: Condicionales",
+    "nodes": ["Condición", "Booleano", "Rama true", "Rama false"],
+    "links": [
+      "Condición -> Booleano",
+      "Booleano -> Rama true",
+      "Booleano -> Rama false"
+    ]
+  },
+  "for": {
+    "title": "Mapa conceptual: Ciclo For",
+    "nodes": ["Inicialización", "Condición", "Actualización", "Bloque"],
+    "links": [
+      "Inicialización -> Condición",
+      "Condición -> Bloque",
+      "Bloque -> Actualización",
+      "Actualización -> Condición"
+    ]
+  },
+  "while": {
+    "title": "Mapa conceptual: Ciclo While",
+    "nodes": ["Estado inicial", "Condición", "Bloque", "Actualización de estado"],
+    "links": [
+      "Estado inicial -> Condición",
+      "Condición -> Bloque",
+      "Bloque -> Actualización de estado",
+      "Actualización de estado -> Condición"
+    ]
+  },
+  "anidados": {
+    "title": "Mapa conceptual: Ciclos anidados",
+    "nodes": ["Bucle externo", "Bucle interno", "Fila", "Columna"],
+    "links": [
+      "Bucle externo -> Fila",
+      "Fila -> Bucle interno",
+      "Bucle interno -> Columna"
+    ]
+  },
+  "estructuras": {
+    "title": "Mapa conceptual: Arrays",
+    "nodes": ["Índice", "Elemento", "Lectura", "Actualización"],
+    "links": [
+      "Índice -> Elemento",
+      "Elemento -> Lectura",
+      "Lectura -> Actualización"
+    ]
+  },
+  "funciones": {
+    "title": "Mapa conceptual: Funciones",
+    "nodes": ["Parámetros", "Bloque", "Retorno", "Reutilización"],
+    "links": [
+      "Parámetros -> Bloque",
+      "Bloque -> Retorno",
+      "Retorno -> Reutilización"
+    ]
+  }
+}

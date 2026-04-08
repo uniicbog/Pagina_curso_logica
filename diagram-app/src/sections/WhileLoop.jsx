@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import { Play, RotateCcw, RotateCw } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
+import { useExecutionEngine } from '../hooks/useExecutionEngine';
+import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 4. Ciclo While
 // Repite MIENTRAS una condición sea verdadera
@@ -22,46 +25,68 @@ animarCicloWhile(false, energia);
 console.log("¡Sin energía!");`;
 
 const WhileLoop = () => {
-  const [code, setCode] = useState(defaultCode);
   const [steps, setSteps] = useState([]);
-  const [error, setError] = useState(null);
+
+  const validationFn = (state) => {
+    if ((state.iterations || 0) > 0) {
+      return { success: true, message: `Bien hecho: evaluaste ${state.iterations} pasos del while.` };
+    }
+    return { success: false, message: 'Ejecuta el while para visualizar su recorrido.' };
+  };
+
+  const {
+    code,
+    setCode,
+    runCode,
+    reset,
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
+    isPlaying,
+    currentStepIndex,
+    totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
+    error,
+    feedback
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'while-loop' });
 
   const handleRun = () => {
     setSteps([]);
-    setError(null);
 
-    try {
-      // Mock function to capture loop steps
-      const animarCicloWhile = (condicion, valor) => {
-        setSteps(prev => [...prev, { condicion, valor }]);
-      };
-
-      // Mock console.log
-      const console = { log: () => {} };
-
-      // Execute user code
-      const runUserCode = new Function('animarCicloWhile', 'console', `
-        try {
-          ${code}
-        } catch (e) {
-          throw e;
+    runCode((addToQueue, updateUserState) => {
+      let iterations = 0;
+      return {
+        animarCicloWhile: (condicion, valor) => {
+          iterations += 1;
+          updateUserState({ iterations });
+          addToQueue(() => {
+            setSteps((prev) => [...prev, { condicion, valor }]);
+          });
         }
-      `);
-
-      runUserCode(animarCicloWhile, console);
-    } catch (err) {
-      setError(err.message);
-    }
+      };
+    });
   };
 
   const handleReset = () => {
     setCode(defaultCode);
     setSteps([]);
-    setError(null);
+    reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-purple-400 mb-2">
           <RotateCw size={20} />
@@ -69,12 +94,13 @@ const WhileLoop = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Ciclo While</h2>
         <p className="text-slate-400 mb-6">Repite acciones mientras se cumpla una condición.</p>
+        <TopicLearningToolkit sectionKey="while" title="Ciclo While" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
                 <h3 className="text-xl font-semibold text-white mb-2">¿Qué es un Ciclo While?</h3>
                 <p className="leading-relaxed">
-                    A diferencia del ciclo For (donde sabes cuántas veces repetir), el <strong>Ciclo While</strong> (Mientras) se usa cuando no sabes exactamente cuándo terminará la tarea, 
+              A diferencia del ciclo For (donde sabes cuántas veces repetir), el <strong>Ciclo While</strong> (Mientras) se usa cuando no sabes exactamente cuándo terminará la tarea,
                     pero sí sabes qué condición debe cumplirse para continuar.
                 </p>
             </div>
@@ -84,6 +110,11 @@ const WhileLoop = () => {
                     Piensa en comer: sigues comiendo <strong>mientras</strong> tengas hambre. No sabes si serán 10 o 20 bocados, pero la condición es "tener hambre".
                     El ciclo se repite una y otra vez hasta que la condición se vuelve falsa.
                 </p>
+            <p className="leading-relaxed mt-3">
+              Para que un while funcione correctamente, la variable que controla la condición debe cambiar dentro del bloque.
+              Si no cambia, el ciclo puede volverse infinito. Por eso es clave revisar siempre tres preguntas: ¿con qué valor inicia?,
+              ¿qué condición evalúo? y ¿qué parte del código actualiza ese valor?
+            </p>
             </div>
 
             <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
@@ -102,6 +133,25 @@ const WhileLoop = () => {
                     </code>
                 </div>
             </div>
+
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                    Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  definir energia como entero <- 3
+
+  MIENTRAS energia > 0 HACER
+    mostrar "Energía restante: " + energia
+    energia <- energia - 1
+  FIN_MIENTRAS
+
+  mostrar "¡Sin energía!"
+FIN`}
+                </pre>
+            </div>
         </div>
       </header>
 
@@ -110,44 +160,47 @@ const WhileLoop = () => {
         <div className="flex flex-col bg-[#1e1e1e] rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
           <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-slate-700">
             <span className="text-slate-300 font-medium text-sm">Editor de Código</span>
-            <div className="flex gap-2">
-              <button 
-                onClick={handleReset}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md transition-colors"
-                title="Restablecer código"
-              >
-                <RotateCcw size={16} />
-              </button>
-              <button 
-                onClick={handleRun}
-                className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                <Play size={16} />
-                Ejecutar
-              </button>
-            </div>
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
-          {error && (
-            <div className="p-4 bg-red-900/20 border-t border-red-900/50 text-red-400 text-sm font-mono">
-              Error: {error}
-            </div>
-          )}
+          <div className="p-4 bg-[#252526] border-t border-slate-700">
+            <ExecutionControls
+              onRun={handleRun}
+              onReset={handleReset}
+              onStep={nextStep}
+              onPause={pause}
+              onResume={play}
+              stepMode={stepMode}
+              onStepModeChange={setStepMode}
+              isPlaying={isPlaying}
+              currentStep={currentStepIndex}
+              totalSteps={totalSteps}
+              currentLine={currentLine}
+              breakpoints={breakpoints}
+              onBreakpointsChange={setBreakpoints}
+              playbackSpeed={playbackSpeed}
+              onSpeedChange={setPlaybackSpeed}
+            />
+            <AdaptiveExerciseBank
+              sectionKey="while"
+              recommendedDifficulty={recommendedDifficulty}
+              onLoadCode={setCode}
+            />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
+          </div>
         </div>
 
         {/* Visualization Column */}
@@ -204,6 +257,8 @@ const WhileLoop = () => {
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="while" />
     </div>
   );
 };

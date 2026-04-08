@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
 import { Split } from 'lucide-react';
 import { useExecutionEngine } from '../hooks/useExecutionEngine';
 import { ExecutionControls, Feedback } from '../components/ExecutionControls';
+import PedagogicalEditor from '../components/PedagogicalEditor';
+import ExecutionInsightsPanel from '../components/ExecutionInsightsPanel';
+import AdaptiveExerciseBank from '../components/AdaptiveExerciseBank';
+import TopicLearningToolkit from '../components/TopicLearningToolkit';
+import MiniQuizPanel from '../components/MiniQuizPanel';
 
 const defaultCode = `// 1. Define una condición
 let edad = 18;
@@ -35,15 +36,28 @@ const Conditionals = () => {
     setCode, 
     runCode, 
     reset, 
-    nextStep, 
-    isDebugMode, 
-    setIsDebugMode, 
+    nextStep,
+    pause,
+    play,
+    stepMode,
+    setStepMode,
+    playbackSpeed,
+    setPlaybackSpeed,
     isPlaying, 
     currentStepIndex, 
     totalSteps,
+    currentLine,
+    narrationHistory,
+    variableTraces,
+    stateDiffs,
+    breakpoints,
+    setBreakpoints,
+    attempts,
+    recommendedDifficulty,
+    predictionResult,
     error, 
     feedback 
-  } = useExecutionEngine(defaultCode, validationFn);
+  } = useExecutionEngine(defaultCode, validationFn, { sectionKey: 'conditionals' });
 
   const handleRun = () => {
     setExecutionStep(null);
@@ -65,11 +79,12 @@ const Conditionals = () => {
   const handleResetWrapper = () => {
     setExecutionStep(null);
     setConditionText("Condición");
+    setCode(defaultCode);
     reset();
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto h-full flex flex-col">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto h-full flex flex-col">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-green-400 mb-2">
           <Split size={20} />
@@ -77,21 +92,26 @@ const Conditionals = () => {
         </div>
         <h2 className="text-3xl font-bold text-white mb-2">Condicionales</h2>
         <p className="text-slate-400 mb-6">Entiende cómo los programas toman decisiones (If / Else).</p>
+        <TopicLearningToolkit sectionKey="condicionales" title="Condicionales" />
 
         <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 text-slate-300 space-y-4 shadow-lg">
             <div>
                 <h3 className="text-xl font-semibold text-white mb-2">¿Qué son los condicionales?</h3>
                 <p className="leading-relaxed">
-                    En la vida real, tomamos decisiones todo el tiempo basándonos en situaciones: "Si llueve, llevo paraguas", "Si tengo hambre, como algo". 
+              En la vida real, tomamos decisiones todo el tiempo basándonos en situaciones: "Si llueve, llevo paraguas", "Si tengo hambre, como algo".
                     Los condicionales permiten que nuestros programas hagan exactamente lo mismo: tomar decisiones.
                 </p>
             </div>
             
             <div>
                 <p className="leading-relaxed">
-                    La estructura más común es el <strong>if / else</strong> (si / si no). Funciona como una bifurcación en el camino: 
+              La estructura más común es el <strong>if / else</strong> (si / si no). Funciona como una bifurcación en el camino:
                     el programa evalúa una pregunta (condición) que puede ser verdadera o falsa. Si es verdadera, toma un camino; si es falsa, puede tomar otro.
                 </p>
+            <p className="leading-relaxed mt-3">
+              Un buen condicional debe tener una condición clara, ramas con acciones bien definidas y, de preferencia,
+              un caso por defecto para evitar comportamientos ambiguos. Esto mejora la legibilidad y reduce errores lógicos.
+            </p>
             </div>
 
             <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
@@ -122,6 +142,24 @@ const Conditionals = () => {
                     </div>
                 </div>
             </div>
+
+            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50">
+                <h4 className="font-medium text-white mb-3 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-emerald-500 rounded-full"></span>
+                    Ejemplo en pseudocódigo:
+                </h4>
+                <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap">
+{`INICIO
+  definir edad como entero <- 18
+
+  SI edad >= 18 ENTONCES
+    mostrar "Es mayor de edad"
+  SINO
+    mostrar "Es menor de edad"
+  FIN_SI
+FIN`}
+                </pre>
+            </div>
         </div>
       </header>
 
@@ -133,18 +171,10 @@ const Conditionals = () => {
           </div>
           
           <div className="flex-1 overflow-auto custom-scrollbar relative">
-            <Editor
+            <PedagogicalEditor
               value={code}
-              onValueChange={code => setCode(code)}
-              highlight={code => highlight(code, languages.javascript)}
-              padding={20}
-              className="font-mono text-sm min-h-full"
-              style={{
-                fontFamily: '"Fira Code", "Fira Mono", monospace',
-                fontSize: 14,
-                backgroundColor: '#1e1e1e',
-                color: '#d4d4d4',
-              }}
+              onChange={setCode}
+              activeLine={currentLine}
             />
           </div>
           
@@ -153,12 +183,24 @@ const Conditionals = () => {
              <ExecutionControls 
                 onRun={handleRun}
                 onReset={handleResetWrapper}
-                onStep={nextStep}
-                isDebugMode={isDebugMode}
-                setIsDebugMode={setIsDebugMode}
+               onStep={nextStep}
+               onPause={pause}
+               onResume={play}
+               stepMode={stepMode}
+               onStepModeChange={setStepMode}
                 isPlaying={isPlaying}
-                canStep={currentStepIndex < totalSteps}
-                isFinished={currentStepIndex >= totalSteps && totalSteps > 0}
+               currentStep={currentStepIndex}
+               totalSteps={totalSteps}
+               currentLine={currentLine}
+               breakpoints={breakpoints}
+               onBreakpointsChange={setBreakpoints}
+               playbackSpeed={playbackSpeed}
+               onSpeedChange={setPlaybackSpeed}
+             />
+             <AdaptiveExerciseBank
+               sectionKey="condicionales"
+               recommendedDifficulty={recommendedDifficulty}
+               onLoadCode={setCode}
              />
           </div>
         </div>
@@ -239,10 +281,19 @@ const Conditionals = () => {
                 </div>
               </div>
             )}
-            <Feedback result={feedback} error={error} />
+            <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
+            <ExecutionInsightsPanel
+              currentLine={currentLine}
+              narrationHistory={narrationHistory}
+              variableTraces={variableTraces}
+              stateDiffs={stateDiffs}
+              attempts={attempts}
+            />
           </div>
         </div>
       </div>
+
+      <MiniQuizPanel sectionKey="condicionales" />
     </div>
   );
 };

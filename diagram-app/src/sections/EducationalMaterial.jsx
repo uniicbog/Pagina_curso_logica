@@ -91,7 +91,7 @@ function getWatchUrl(raw) {
 
 const EducationalMaterial = () => {
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto">
       <header className="mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-sm font-medium mb-4 border border-red-500/20">
           <Youtube size={14} />
