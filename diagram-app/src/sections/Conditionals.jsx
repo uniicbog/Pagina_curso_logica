@@ -211,9 +211,9 @@ FIN`}
             <span className="text-slate-300 font-medium text-sm">Flujo del Programa</span>
           </div>
           
-          <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto flex flex-col items-center justify-center">
+          <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto flex flex-col items-center justify-start pt-10">
             {!executionStep ? (
-              <div className="flex flex-col items-center justify-center text-slate-600">
+              <div className="flex flex-col items-center justify-start pt-10 text-slate-600">
                 <Split size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta el código para ver la decisión</p>
               </div>
@@ -255,7 +255,7 @@ FIN`}
                     {/* Content Layer */}
                     <div className="relative z-10 flex flex-col items-center">
                         {/* Diamond */}
-                        <div className="w-24 h-24 bg-[#1e1e1e] border-2 border-yellow-500/50 rotate-45 flex items-center justify-center mb-16 shadow-lg">
+                        <div className="w-24 h-24 bg-[#1e1e1e] border-2 border-yellow-500/50 rotate-45 flex items-center justify-start pt-10 mb-16 shadow-lg">
                             <span className="-rotate-45 text-yellow-500 font-bold text-xl">?</span>
                         </div>
                         

@@ -224,7 +224,7 @@ FIN`}
           
           <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto space-y-8">
             {snapshots.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
+              <div className="absolute inset-0 flex flex-col items-center justify-start pt-10 text-slate-600">
                 <Grid size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta el código para ver los arrays</p>
               </div>
@@ -237,7 +237,7 @@ FIN`}
                   <div className="flex flex-wrap gap-2">
                     {arr.map((item, index) => (
                       <div key={index} className="flex flex-col items-center group">
-                        <div className="h-12 min-w-[3rem] px-3 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-lg text-cyan-300 font-mono shadow-sm group-hover:border-cyan-500/50 group-hover:bg-slate-800/80 transition-all">
+                        <div className="h-12 min-w-[3rem] px-3 flex items-center justify-start pt-10 bg-slate-800 border border-slate-700 rounded-lg text-cyan-300 font-mono shadow-sm group-hover:border-cyan-500/50 group-hover:bg-slate-800/80 transition-all">
                           {typeof item === 'string' ? `"${item}"` : item}
                         </div>
                         <div className="mt-1 text-[10px] text-slate-600 font-mono group-hover:text-cyan-500/70 transition-colors">

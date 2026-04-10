@@ -52,7 +52,7 @@
           ],
           "feedbackExito": "Excelente. Ya dominas declaraciones basicas de variables."
         },
-        "respuesta": "// Solucion sugerida\\nlet nombre = \"Ana\";\nlet edad = 18;\nlet estudiante = true;\n\n// Completa aqui\\n// (Solucion completa por implementar)"
+        "respuesta": "let nombre = \"Ana\";\nlet edad = 18;\nlet estudiante = true;\n\ncrearVariable(nombre, \"Variable de texto\");\ncrearVariable(edad, \"Variable numerica\");\ncrearVariable(estudiante, \"Variable booleana\");"
       }
     ],
     "condicionales": [
@@ -82,7 +82,7 @@
           ],
           "feedbackExito": "Muy bien. Aplicaste correctamente una bifurcacion logica."
         },
-        "respuesta": "// Solucion sugerida\\nlet energia = 40;\n\n// Completa el if/else\\n// (Solucion completa por implementar)"
+        "respuesta": "let energia = 50;\n\nif (energia > 0) {\n  animarCondicional(true);\n} else {\n  animarCondicional(false);\n}"
       }
     ],
     "for": [
@@ -112,7 +112,7 @@
           ],
           "feedbackExito": "Reto superado. Controlaste el ciclo con precision."
         },
-        "respuesta": "// Solucion sugerida\\n// Completa un ciclo for\n\\n// (Solucion completa por implementar)"
+        "respuesta": "for (let i = 1; i <= 5; i++) {\n  animarCicloFor(i);\n}"
       }
     ],
     "while": [
@@ -142,7 +142,7 @@
           ],
           "feedbackExito": "Buen trabajo. Ya controlas ciclos con condicion dinamica."
         },
-        "respuesta": "// Solucion sugerida\\nlet contador = 3;\n\n// Completa el ciclo while\\n// (Solucion completa por implementar)"
+        "respuesta": "let contador = 3;\n\nwhile (contador >= 0) {\n  animarCicloWhile(contador);\n  contador--;\n}"
       }
     ],
     "anidados": [
@@ -172,7 +172,7 @@
           ],
           "feedbackExito": "Excelente. Dominas el patron de doble iteracion."
         },
-        "respuesta": "// Solucion sugerida\\n// Recorre una matriz 2x2\n\\n// (Solucion completa por implementar)"
+        "respuesta": "let matriz = [[1, 2], [3, 4]];\n\nfor (let i = 0; i < matriz.length; i++) {\n  for (let j = 0; j < matriz[i].length; j++) {\n    animarAnidado(matriz[i][j]);\n  }\n}"
       }
     ],
     "estructuras": [
@@ -202,7 +202,7 @@
           ],
           "feedbackExito": "Perfecto. Convertiste datos lineales en estructura visual."
         },
-        "respuesta": "// Solucion sugerida\\n// Crea un arreglo de 4 numeros\n\\n// (Solucion completa por implementar)"
+        "respuesta": "let numeros = [10, 20, 30, 40];\n\nanimarArray(numeros);"
       }
     ],
     "funciones": [
@@ -232,7 +232,7 @@
           ],
           "feedbackExito": "Reto logrado. Tu funcion procesa y devuelve resultados correctamente."
         },
-        "respuesta": "// Solucion sugerida\\n// Crea la funcion duplicar\n\\n// (Solucion completa por implementar)"
+        "respuesta": "function duplicar(num) {\n  return num * 2;\n}\n\nlet resultado = duplicar(5);\nanimarFuncion(resultado);"
       }
     ]
   }

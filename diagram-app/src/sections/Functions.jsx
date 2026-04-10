@@ -208,7 +208,7 @@ FIN`}
           
           <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto space-y-6">
             {calls.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
+              <div className="absolute inset-0 flex flex-col items-center justify-start pt-10 text-slate-600">
                 <FunctionSquare size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta una función para verla en acción</p>
               </div>
@@ -227,7 +227,7 @@ FIN`}
                   <ArrowRight size={20} className="text-slate-600" />
 
                   {/* Machine */}
-                  <div className="flex-1 bg-indigo-900/20 border border-indigo-500/30 rounded-lg p-4 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                  <div className="flex-1 bg-indigo-900/20 border border-indigo-500/30 rounded-lg p-4 flex flex-col items-center justify-start pt-10 shadow-[0_0_15px_rgba(99,102,241,0.1)]">
                     <FunctionSquare size={24} className="text-indigo-400 mb-2" />
                     <span className="font-mono font-bold text-indigo-300">{call.nombre}()</span>
                   </div>

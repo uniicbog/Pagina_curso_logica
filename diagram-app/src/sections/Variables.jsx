@@ -200,7 +200,7 @@ FIN`}
           
           <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto">
             {variables.length === 0 && !error ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
+              <div className="absolute inset-0 flex flex-col items-center justify-start pt-10 text-slate-600">
                 <Box size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta el código para ver las variables</p>
               </div>

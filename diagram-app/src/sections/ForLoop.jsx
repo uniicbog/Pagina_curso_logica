@@ -196,7 +196,7 @@ FIN`}
           
           <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto flex flex-col">
             {steps.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-slate-600">
+              <div className="flex-1 flex flex-col items-center justify-start pt-10 text-slate-600">
                 <Repeat size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta el ciclo para ver los pasos</p>
               </div>
@@ -208,7 +208,7 @@ FIN`}
                     <div 
                       key={index}
                       className={`
-                        relative w-16 h-16 flex items-center justify-center rounded-xl font-mono text-xl font-bold border-2 transition-all duration-500
+                        relative w-16 h-16 flex items-center justify-start pt-10 rounded-xl font-mono text-xl font-bold border-2 transition-all duration-500
                         ${isLast 
                           ? 'bg-orange-500 text-white border-orange-400 scale-110 shadow-[0_0_20px_rgba(249,115,22,0.4)] z-10' 
                           : 'bg-slate-800 text-slate-500 border-slate-700 scale-100'

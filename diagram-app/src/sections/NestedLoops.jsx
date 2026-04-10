@@ -213,7 +213,7 @@ FIN`}
             <span className="text-slate-300 font-medium text-sm">Grid de Coordenadas</span>
           </div>
           
-          <div className="flex-1 p-6 bg-slate-900/50 relative overflow-auto flex items-center justify-center">
+          <div className="flex-1 p-6 bg-slate-900/50 relative overflow-auto flex flex-col items-center justify-start pt-10">
             {visitedCells.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-slate-600">
                 <Layers size={48} className="mb-4 opacity-20" />

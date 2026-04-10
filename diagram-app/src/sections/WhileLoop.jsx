@@ -211,7 +211,7 @@ FIN`}
           
           <div className="flex-1 p-6 bg-secondary/50 relative overflow-auto">
             {steps.length === 0 ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
+              <div className="absolute inset-0 flex flex-col items-center justify-start pt-10 text-slate-600">
                 <RotateCw size={48} className="mb-4 opacity-20" />
                 <p>Ejecuta el ciclo para ver el flujo</p>
               </div>
@@ -224,7 +224,7 @@ FIN`}
                       {/* Diamond Shape */}
                       <div 
                         className={`
-                          w-16 h-16 rotate-45 flex items-center justify-center border-2 transition-all duration-500 shadow-lg
+                          w-16 h-16 rotate-45 flex items-center justify-start pt-10 border-2 transition-all duration-500 shadow-lg
                           ${step.condicion 
                             ? 'bg-green-900/20 border-green-500 text-green-400' 
                             : 'bg-red-900/20 border-red-500 text-red-400'
