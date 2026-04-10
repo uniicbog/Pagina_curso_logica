@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
@@ -12,7 +13,8 @@ function renderHighlighted(code, activeLine) {
   return rawLines
     .map((line, index) => {
       const highlighted = highlight(line || ' ', languages.javascript);
-      const lineClass = index + 1 === activeLine ? 'editor-active-line' : '';
+      // Added animate-pulse-highlight from tailwind config for active lines!
+      const lineClass = index + 1 === activeLine ? 'editor-active-line animate-pulse-highlight rounded-sm px-1 -mx-1' : '';
       return `<span class="editor-line ${lineClass}">${highlighted}</span>`;
     })
     .join('\n');
@@ -133,38 +135,56 @@ const PedagogicalEditor = ({
         onSelect={handleSuggestion}
       />
 
-      {activeLine ? (
-        <div className="absolute top-3 right-3 text-xs px-2 py-1 rounded bg-blue-500/20 border border-blue-500/40 text-blue-300 font-mono">
-          Línea activa: {activeLine}
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {activeLine ? (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="absolute top-3 right-3 text-xs px-2 py-1 rounded bg-blue-500/20 border border-blue-500/40 text-blue-300 font-mono shadow-md backdrop-blur-sm"
+          >
+            Línea activa: {activeLine}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
-      {warnings.length > 0 ? (
-        <div className="mt-3 rounded-lg border border-slate-700 bg-slate-900/70 overflow-hidden">
-          <div className="px-3 py-2 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
-            Mini lint pedagógico
-          </div>
-          <div className="max-h-36 overflow-auto custom-scrollbar">
-            {warnings.map((warning, index) => (
-              <div
-                key={`${warning.line}-${warning.message}-${index}`}
-                className="px-3 py-2 text-xs border-b border-slate-800 last:border-b-0"
-              >
-                <span className={`font-semibold ${
-                  warning.severity === 'error'
-                    ? 'text-red-400'
-                    : warning.severity === 'warning'
-                      ? 'text-yellow-400'
-                      : 'text-sky-400'
-                }`}>
-                  Línea {warning.line}:
-                </span>{' '}
-                <span className="text-slate-300">{warning.message}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {warnings.length > 0 ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0, y: -10 }}
+            animate={{ height: "auto", opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -10, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.3 }}
+            className="mt-3 rounded-lg border border-slate-700 bg-slate-900/70 overflow-hidden shadow-lg"
+          >
+            <div className="px-3 py-2 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800 bg-slate-800/50">
+              Mini lint pedagógico
+            </div>
+            <div className="max-h-36 overflow-auto custom-scrollbar">
+              {warnings.map((warning, index) => (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  key={`${warning.line}-${warning.message}-${index}`}
+                  className="px-3 py-2 text-xs border-b border-slate-800/50 last:border-b-0 hover:bg-slate-800/30 transition-colors"
+                >
+                  <span className={`font-semibold ${
+                    warning.severity === 'error'
+                      ? 'text-rose-400'
+                      : warning.severity === 'warning'
+                        ? 'text-amber-400'
+                        : 'text-sky-400'
+                  }`}>
+                    Línea {warning.line}:
+                  </span>{' '}
+                  <span className="text-slate-300">{warning.message}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

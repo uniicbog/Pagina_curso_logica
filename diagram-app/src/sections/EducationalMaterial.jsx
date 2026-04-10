@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Youtube, ExternalLink, PlayCircle } from 'lucide-react';
 
 const videos = [
@@ -90,9 +91,29 @@ function getWatchUrl(raw) {
 }
 
 const EducationalMaterial = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
+
   return (
-    <div className="learning-section p-8 lg:p-10 max-w-7xl mx-auto">
-      <header className="mb-10">
+    <motion.div 
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-50px" }}
+      className="learning-section p-8 lg:p-10 max-w-7xl mx-auto"
+    >
+      <motion.header variants={itemVariants} className="mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-sm font-medium mb-4 border border-red-500/20">
           <Youtube size={14} />
           <span>Recursos Multimedia</span>
@@ -103,11 +124,15 @@ const EducationalMaterial = () => {
         <p className="text-lg text-slate-400 max-w-3xl">
           Una colección curada de videos para reforzar tus conocimientos. Aquí encontrarás explicaciones visuales y ejemplos prácticos sobre los temas del curso.
         </p>
-      </header>
+      </motion.header>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+      <motion.div variants={containerVariants} className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
         {videos.map((video) => (
-          <div key={video.id} className="group bg-secondary/50 border border-slate-800 rounded-2xl overflow-hidden hover:border-red-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-900/10">
+          <motion.div 
+            variants={itemVariants}
+            key={video.id} 
+            className="group bg-secondary/50 border border-slate-800 rounded-2xl overflow-hidden hover:border-red-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-900/10"
+          >
             {/* Video Container - Aspect Ratio 16:9 */}
             <div className="relative w-full aspect-video bg-black">
               <iframe 
@@ -140,11 +165,14 @@ const EducationalMaterial = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="mt-12 p-6 bg-blue-500/5 border border-blue-500/20 rounded-xl flex items-start gap-4">
+      <motion.div 
+        variants={itemVariants}
+        className="mt-12 p-6 bg-blue-500/5 border border-blue-500/20 rounded-xl flex items-start gap-4"
+      >
         <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400">
           <ExternalLink size={24} />
         </div>
@@ -154,8 +182,8 @@ const EducationalMaterial = () => {
             Recuerda que puedes consultar la documentación oficial de JavaScript o buscar más tutoriales específicos en plataformas educativas.
           </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
