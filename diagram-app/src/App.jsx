@@ -11,6 +11,7 @@ import Arrays from './sections/Arrays';
 import Functions from './sections/Functions';
 import DiagramExplanation from './sections/DiagramExplanation';
 import EducationalMaterial from './sections/EducationalMaterial';
+import GuidedProjects from './sections/GuidedProjects';
 
 function App() {
   const [activeSection, setActiveSection] = useState('inicio');
@@ -19,10 +20,6 @@ function App() {
     switch (activeSection) {
       case 'inicio':
         return <Home onNavigate={setActiveSection} />;
-      case 'material':
-        return <EducationalMaterial />;
-      case 'diagrama':
-        return <DiagramGenerator />;
       case 'variables':
         return <Variables />;
       case 'condicionales':
@@ -39,6 +36,12 @@ function App() {
         return <Functions />;
       case 'explicacion-diagramas':
         return <DiagramExplanation />;
+      case 'diagrama':
+        return <DiagramGenerator />;
+      case 'material':
+        return <EducationalMaterial />;
+      case 'proyectos':
+        return <GuidedProjects />;
       default:
         return <Home onNavigate={setActiveSection} />;
     }

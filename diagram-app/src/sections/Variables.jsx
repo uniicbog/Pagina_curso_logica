@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useExecutionEngine } from '../hooks/useExecutionEngine';
 import { ExecutionControls, Feedback } from '../components/ExecutionControls';
 import PedagogicalEditor from '../components/PedagogicalEditor';
@@ -205,29 +206,69 @@ FIN`}
                 <p>Ejecuta el código para ver las variables</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
-                {variables.map((variable, index) => (
-                  <div 
-                    key={index}
-                    className="bg-slate-800 rounded-lg p-4 border border-slate-700 shadow-lg transform transition-all duration-500 hover:scale-105 hover:border-blue-500/50 animate-in fade-in zoom-in-95"
-                  >
-                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Nombre</div>
-                    <div className="font-mono text-blue-400 font-bold text-lg mb-3">{variable.nombre}</div>
-                    
-                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Valor</div>
-                    <div className={`font-mono text-lg p-2 rounded bg-slate-900/50 border border-slate-700/50 ${
-                      typeof variable.valor === 'string' ? 'text-green-400' : 
-                      typeof variable.valor === 'number' ? 'text-orange-400' : 
-                      typeof variable.valor === 'boolean' ? 'text-purple-400' : 'text-slate-300'
-                    }`}>
-                      {typeof variable.valor === 'string' ? `"${variable.valor}"` : String(variable.valor)}
-                    </div>
-                    <div className="mt-2 text-xs text-slate-600 text-right font-mono">
-                      Tipo: {typeof variable.valor}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4 content-start"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { 
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 } 
+                  }
+                }}
+              >
+                <AnimatePresence>
+                  {variables.map((variable, index) => {
+                    const isString = typeof variable.valor === 'string';
+                    const isNumber = typeof variable.valor === 'number';
+                    const isBoolean = typeof variable.valor === 'boolean';
+
+                    return (
+                      <motion.div 
+                        key={`${variable.nombre}-${index}`}
+                        layout
+                        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ y: -5, scale: 1.02 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="bg-[#1e2330] rounded-xl p-5 border border-slate-700/50 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:border-indigo-500/40 relative overflow-hidden backdrop-blur-md group"
+                      >
+                        <div className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-100 pointer-events-none bg-gradient-to-br from-indigo-500/5 to-transparent"></div>
+                        
+                        <div className="relative z-10">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="text-[11px] text-slate-400 uppercase tracking-widest font-bold">Identificador</div>
+                            <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-widest bg-slate-800 border border-slate-600 text-slate-400 font-mono">
+                              var
+                            </span>
+                          </div>
+                          
+                          <div className="font-mono text-indigo-400 font-bold text-xl mb-6 truncate px-1">
+                            {variable.nombre}
+                          </div>
+                          
+                          <div className="text-[11px] text-slate-400 uppercase tracking-widest font-bold mb-2">Valor Actual</div>
+                          
+                          <div className="font-mono text-[17px] p-3 rounded bg-[#10121a] border border-slate-800 shadow-inner flex items-center justify-between transition-colors group-hover:border-indigo-500/20">
+                            <span className={`truncate ${
+                              isString ? 'text-emerald-400' : 
+                              isNumber ? 'text-amber-400' : 
+                              isBoolean ? 'text-rose-400' : 'text-slate-300'
+                            }`}>
+                              {isString ? `"${variable.valor}"` : String(variable.valor)}
+                            </span>
+                            <span className="text-[10px] opacity-40 uppercase tracking-wide">
+                              {typeof variable.valor}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.div>
             )}
             
             <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />

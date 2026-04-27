@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Split } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useExecutionEngine } from '../hooks/useExecutionEngine';
 import { ExecutionControls, Feedback } from '../components/ExecutionControls';
 import PedagogicalEditor from '../components/PedagogicalEditor';
@@ -218,68 +219,153 @@ FIN`}
                 <p>Ejecuta el código para ver la decisión</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500 w-full max-w-lg">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="flex flex-col items-center w-full max-w-lg relative"
+              >
                 
                 {/* Start Node */}
-                <div className="px-4 py-2 bg-slate-700 rounded-full text-slate-300 text-sm font-mono mb-2 border border-slate-600 z-10">
+                <motion.div 
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="px-5 py-2.5 bg-[#1e2330] rounded-full text-slate-200 shadow-md text-sm font-bold font-mono mb-2 border border-slate-600 z-10 uppercase tracking-widest"
+                >
                   Inicio
-                </div>
+                </motion.div>
                 
                 {/* Vertical Line */}
-                <div className="h-8 w-0.5 bg-slate-600"></div>
+                <motion.div 
+                  initial={{ height: 0 }}
+                  animate={{ height: "2rem" }}
+                  className="w-0.5 bg-gradient-to-b from-slate-600 to-indigo-500/50"
+                />
 
                 {/* Condition Label */}
-                <div className="text-xs text-slate-400 mb-1 font-mono bg-secondary px-2 py-0.5 rounded border border-slate-800 z-10">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-xs text-indigo-200 mb-1 font-mono font-bold bg-indigo-900/40 px-3 py-1 rounded shadow-sm border border-indigo-700/50 z-10"
+                >
                   {conditionText}
-                </div>
+                </motion.div>
 
                 {/* Flowchart Container */}
-                <div className="relative w-full mt-2">
+                <div className="relative w-full mt-3">
                     {/* SVG Connections */}
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible" style={{ zIndex: 0 }}>
                         <defs>
                             <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" />
+                            </marker>
+                            <marker id="arrowhead-true" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+                            </marker>
+                            <marker id="arrowhead-false" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#f43f5e" />
                             </marker>
                         </defs>
                         
-                        {/* Path to True (Left) */}
-                        <line x1="50%" y1="48" x2="20%" y2="48" stroke="#475569" strokeWidth="2" />
-                        <line x1="20%" y1="48" x2="20%" y2="100" stroke="#475569" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                        {/* Dynamic Paths */}
+                        <motion.line 
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.5, delay: 0.5 }}
+                          x1="50%" y1="48" x2="20%" y2="48" 
+                          stroke={executionStep === 'true' ? "#10b981" : "#475569"} 
+                          strokeWidth={executionStep === 'true' ? "3" : "2"} 
+                          strokeDasharray={executionStep === 'false' ? "5,5" : "none"}
+                        />
+                        <motion.line 
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.5, delay: 0.7 }}
+                          x1="20%" y1="48" x2="20%" y2="100" 
+                          stroke={executionStep === 'true' ? "#10b981" : "#475569"} 
+                          strokeWidth={executionStep === 'true' ? "3" : "2"} 
+                          strokeDasharray={executionStep === 'false' ? "5,5" : "none"}
+                          markerEnd={executionStep === 'true' ? "url(#arrowhead-true)" : "url(#arrowhead)"} 
+                        />
                         
-                        {/* Path to False (Right) */}
-                        <line x1="50%" y1="48" x2="80%" y2="48" stroke="#475569" strokeWidth="2" />
-                        <line x1="80%" y1="48" x2="80%" y2="100" stroke="#475569" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                        <motion.line 
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.5, delay: 0.5 }}
+                          x1="50%" y1="48" x2="80%" y2="48" 
+                          stroke={executionStep === 'false' ? "#f43f5e" : "#475569"} 
+                          strokeWidth={executionStep === 'false' ? "3" : "2"} 
+                          strokeDasharray={executionStep === 'true' ? "5,5" : "none"}
+                        />
+                        <motion.line 
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 0.5, delay: 0.7 }}
+                          x1="80%" y1="48" x2="80%" y2="100" 
+                          stroke={executionStep === 'false' ? "#f43f5e" : "#475569"} 
+                          strokeWidth={executionStep === 'false' ? "3" : "2"} 
+                          strokeDasharray={executionStep === 'true' ? "5,5" : "none"}
+                          markerEnd={executionStep === 'false' ? "url(#arrowhead-false)" : "url(#arrowhead)"} 
+                        />
                     </svg>
 
                     {/* Content Layer */}
                     <div className="relative z-10 flex flex-col items-center">
                         {/* Diamond */}
-                        <div className="w-24 h-24 bg-[#1e1e1e] border-2 border-yellow-500/50 rotate-45 flex items-center justify-start pt-10 mb-16 shadow-lg">
-                            <span className="-rotate-45 text-yellow-500 font-bold text-xl">?</span>
-                        </div>
+                        <motion.div 
+                          initial={{ scale: 0, rotate: -45 }}
+                          animate={{ scale: 1, rotate: 45 }}
+                          transition={{ type: 'spring', damping: 15, delay: 0.4 }}
+                          className="w-24 h-24 bg-[#1a1625] border-2 border-amber-500 flex items-center justify-center mb-16 shadow-[0_0_20px_rgba(245,158,11,0.2)] rounded-lg"
+                        >
+                            <span className="-rotate-45 text-amber-400 font-black text-3xl font-mono leading-none flex items-center h-full justify-center pb-2">?</span>
+                        </motion.div>
                         
                         {/* Branches */}
                         <div className="flex justify-between w-full px-4">
                             {/* True Branch */}
-                            <div className={`flex flex-col items-center w-1/3 transition-opacity duration-500 ${executionStep === 'true' ? 'opacity-100' : 'opacity-30 grayscale'}`}>
-                                <span className="text-xs font-bold text-green-400 mb-2 bg-[#1e1e1e] px-2 py-1 rounded border border-green-500/30 z-10">VERDADERO</span>
-                                <div className="px-4 py-3 bg-green-900/20 border border-green-500/50 rounded text-green-300 text-sm font-mono shadow-[0_0_15px_rgba(34,197,94,0.2)] w-full text-center">
-                                    Ejecutar Bloque IF
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ 
+                                  y: 0, 
+                                  opacity: executionStep === 'true' ? 1 : 0.3,
+                                  scale: executionStep === 'true' ? 1.05 : 0.95
+                                }}
+                                transition={{ delay: 0.9 }}
+                                className={`flex flex-col items-center w-[40%] ${executionStep === 'true' ? 'drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'grayscale'}`}
+                                style={{ transformOrigin: 'top center' }}
+                            >
+                                <span className="text-[10px] font-black text-emerald-200 mb-2 bg-emerald-900/40 px-3 py-1 rounded-full border border-emerald-500/40 shadow-sm z-10 tracking-widest uppercase">VERDADERO</span>
+                                <div className="px-4 py-4 bg-[#131f1c] border-2 border-emerald-500/40 rounded-xl text-emerald-300 text-sm font-bold font-mono w-full text-center relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-emerald-500/10 transition-opacity"></div>
+                                    Ejecutar Código IF
                                 </div>
-                            </div>
+                            </motion.div>
                             
                             {/* False Branch */}
-                            <div className={`flex flex-col items-center w-1/3 transition-opacity duration-500 ${executionStep === 'false' ? 'opacity-100' : 'opacity-30 grayscale'}`}>
-                                <span className="text-xs font-bold text-red-400 mb-2 bg-[#1e1e1e] px-2 py-1 rounded border border-red-500/30 z-10">FALSO</span>
-                                <div className="px-4 py-3 bg-red-900/20 border border-red-500/50 rounded text-red-300 text-sm font-mono shadow-[0_0_15px_rgba(239,68,68,0.2)] w-full text-center">
-                                    Ejecutar Bloque ELSE
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ 
+                                  y: 0, 
+                                  opacity: executionStep === 'false' ? 1 : 0.3,
+                                  scale: executionStep === 'false' ? 1.05 : 0.95
+                                }}
+                                transition={{ delay: 0.9 }}
+                                className={`flex flex-col items-center w-[40%] ${executionStep === 'false' ? 'drop-shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'grayscale'}`}
+                                style={{ transformOrigin: 'top center' }}
+                            >
+                                <span className="text-[10px] font-black text-rose-200 mb-2 bg-rose-900/40 px-3 py-1 rounded-full border border-rose-500/40 shadow-sm z-10 tracking-widest uppercase">FALSO</span>
+                                <div className="px-4 py-4 bg-[#201316] border-2 border-rose-500/40 rounded-xl text-rose-300 text-sm font-bold font-mono w-full text-center relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-rose-500/10 transition-opacity"></div>
+                                    Ejecutar Código ELSE
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </div>
-              </div>
+              </motion.div>
             )}
             <Feedback feedback={feedback} error={error} predictionResult={predictionResult} />
             <ExecutionInsightsPanel

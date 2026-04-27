@@ -79,6 +79,7 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
   const [breakpoints, setBreakpointsState] = useState([]);
   const [attempts, setAttempts] = useState(() => getAttemptHistory(sectionKey));
   const [recommendedDifficulty, setRecommendedDifficulty] = useState(() => getAdaptiveDifficulty(sectionKey));
+  const [predictionResult, setPredictionResult] = useState(null);
 
   const queueRef = useRef([]);
   const userStateRef = useRef({});
@@ -102,6 +103,7 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
 
   const reset = useCallback(() => {
     setError(null);
+    setPredictionResult(null);
     setFeedback(null);
     setConsoleMessages([]);
     setCurrentStepIndex(0);
@@ -128,7 +130,22 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
   const runCode = useCallback((setupContextFn) => {
     reset();
     runStartedAtRef.current = Date.now();
+// Basic heuristic prediction
+    if (code) {
+      let prediction = null;
+      // Infinite loop basic heuristic: while without var mutation
+      if (/while\s*\([^)]+\)\s*\{[^}]*\}/.test(code)) {
+        if (!/(\+\+|--|\+=|-=|=.*[+*/-])/.test(code.match(/while\s*\([^)]+\)\s*\{([^}]*)\}/)?.[1] || '')) {
+          prediction = { type: 'warning', message: 'Posible bucle infinito detectado: tu ciclo while parece no modificar la variable de control.' };
+        }
+      }
+      if (!prediction && /for\s*\([^;]+;[^;]+;\s*\)/.test(code)) {
+         prediction = { type: 'warning', message: 'Estructura de for mal formada detectada, ¿olvidaste el incremento?' };
+      }
+      setPredictionResult(prediction);
+    }
 
+    
     const context = setupContextFn(addToQueue, updateUserState) || {};
     const handlers = {};
 
@@ -147,7 +164,7 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
     });
 
     handlers.__traceLine = (line, text) => {
-      addToQueue(() => {
+      const traceAction = () => {
         const lineNumber = Number(line) || null;
         currentLineRef.current = lineNumber;
         setCurrentLine(lineNumber);
@@ -164,7 +181,12 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
             timestamp: Date.now()
           }
         ]);
-      });
+      };
+      
+      traceAction.isTraceLine = true;
+      traceAction.traceLineNumber = Number(line) || null;
+      
+      addToQueue(traceAction);
     };
 
     runInSandbox({
@@ -274,7 +296,7 @@ export const useExecutionEngine = (initialCode, validationFn, options = {}) => {
 
       setCurrentStepIndex((prev) => prev + 1);
 
-      if (line && breakpointsRef.current.includes(line)) {
+      if (action.isTraceLine && action.traceLineNumber && breakpointsRef.current.includes(action.traceLineNumber)) {
         setIsPlaying(false);
       }
     } else {

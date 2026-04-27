@@ -7,7 +7,8 @@ La version inicial en HTML/JS vanilla fue retirada para evitar despliegues dupli
 ## Estructura actual
 
 - `diagram-app/`: aplicacion principal (React + Vite)
-- `index.html` (raiz): redireccion al build de React en `diagram-app/dist/index.html`
+- `index.html` (raiz): redireccion al build de React en `dist/index.html`
+- `flow-diagram-editor/`: editor secundario (React + Vite)
 
 ## Comandos (desde la raiz)
 
@@ -17,8 +18,11 @@ La version inicial en HTML/JS vanilla fue retirada para evitar despliegues dupli
 
 ## Despliegue
 
-Despliega el contenido compilado de `diagram-app/dist`.
+Despliega el contenido compilado de `dist`.
 
 ## Nota
 
 Si abres `index.html` en la raiz, redirige automaticamente al build React.
+
+- Build de `diagram-app` -> `dist/` (en la raiz del proyecto).
+- Build de `flow-diagram-editor` -> `flow-diagram-editor-dist/` (en la raiz del proyecto).

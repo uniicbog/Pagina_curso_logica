@@ -1,7 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { getProgress } from '../modules/storage';
+
+const curriculumOrder = [
+  'variables',
+  'condicionales',
+  'for',
+  'while',
+  'anidados',
+  'estructuras',
+  'funciones',
+  'diagrama',
+  'proyectos'
+];
+
+const cards = [
+  { title: 'Variables', desc: 'Cómo se guardan los datos en memoria', id: 'variables', color: 'blue' },
+  { title: 'Condicionales', desc: 'Toma de decisiones en el código', id: 'condicionales', color: 'green' },
+  { title: 'Ciclos', desc: 'Repetición de tareas (For/While)', id: 'for', color: 'orange' },
+  { title: 'Arrays', desc: 'Organización de datos complejos', id: 'estructuras', color: 'pink' },
+  { title: 'Funciones', desc: 'Bloques de código reutilizables', id: 'funciones', color: 'indigo' },
+  { title: 'Diagramas', desc: 'Diseño visual de algoritmos', id: 'diagrama', color: 'cyan' },
+  { title: 'Proyectos Guiados', desc: 'Integra lo aprendido', id: 'proyectos', color: 'indigo' }
+];
 
 const Home = ({ onNavigate }) => {
+  const [progressData, setProgressData] = useState({});
+
+  useEffect(() => {
+    const data = {};
+    curriculumOrder.forEach((key) => {
+      data[key] = getProgress(key);
+    });
+    setProgressData(data);
+  }, []);
+
   return (
     <div className="learning-section p-8 lg:p-10 max-w-6xl mx-auto">
       <header className="mb-12 text-center">
@@ -42,28 +75,39 @@ const Home = ({ onNavigate }) => {
       <div className="bg-secondary border border-slate-800 rounded-2xl p-8">
         <h3 className="text-xl font-bold text-white mb-6">¿Qué encontrarás aquí?</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { title: 'Variables', desc: 'Cómo se guardan los datos en memoria', id: 'variables', color: 'blue' },
-            { title: 'Condicionales', desc: 'Toma de decisiones en el código', id: 'condicionales', color: 'green' },
-            { title: 'Ciclos', desc: 'Repetición de tareas (For/While)', id: 'for', color: 'orange' },
-            { title: 'Arrays', desc: 'Organización de datos complejos', id: 'estructuras', color: 'pink' },
-            { title: 'Funciones', desc: 'Bloques de código reutilizables', id: 'funciones', color: 'indigo' },
-            { title: 'Diagramas', desc: 'Diseño visual de algoritmos', id: 'diagrama', color: 'cyan' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className="group text-left p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600 transition-all"
-            >
-              <h4 className={`font-bold text-${item.color}-400 mb-1 group-hover:text-${item.color}-300`}>
-                {item.title}
-              </h4>
-              <p className="text-sm text-slate-400 mb-3">{item.desc}</p>
-              <div className="flex items-center text-xs font-medium text-slate-500 group-hover:text-white transition-colors">
-                Explorar <ArrowRight size={12} className="ml-1" />
-              </div>
-            </button>
-          ))}
+          {cards.map((item) => {
+            const prog = progressData[item.id] || 0;
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onNavigate(item.id)}
+                className="group text-left p-4 rounded-xl transition-all relative overflow-hidden bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600"
+              >
+                <div className="flex justify-between items-start mb-1">
+                  <h4 className={`font-bold text-${item.color}-400 group-hover:text-${item.color}-300`}>
+                    {item.title}
+                  </h4>
+                </div>
+                <p className="text-sm text-slate-400 mb-3">{item.desc}</p>
+
+                <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden border border-slate-700">
+                  <div
+                    className={`bg-${item.color}-400 h-1.5 rounded-full transition-all duration-500`}
+                    style={{ width: `${prog}%` }}
+                  />
+                </div>
+
+                <div className="flex justify-between items-center text-xs font-medium">
+                  <span className="text-slate-400">{`${prog}% completado`}</span>
+                  <span className="flex items-center text-slate-500 group-hover:text-white transition-colors">
+                    Explorar <ArrowRight size={12} className="ml-1" />
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

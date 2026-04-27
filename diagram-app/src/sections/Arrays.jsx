@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Grid } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useExecutionEngine } from '../hooks/useExecutionEngine';
 import { ExecutionControls, Feedback } from '../components/ExecutionControls';
 import PedagogicalEditor from '../components/PedagogicalEditor';
@@ -230,23 +231,97 @@ FIN`}
               </div>
             ) : (
               snapshots.map((arr, snapIndex) => (
-                <div key={snapIndex} className="animate-in slide-in-from-left duration-500 fade-in">
-                  <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">
-                    Estado {snapIndex + 1}
+                <motion.div 
+                  key={snapIndex} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="mb-8 relative"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="text-xs text-cyan-400 uppercase tracking-widest font-bold bg-cyan-900/30 px-3 py-1 rounded-full border border-cyan-800/50 shadow-sm">
+                      Estado {snapIndex + 1}
+                    </div>
+                    {snapIndex > 0 && <div className="h-[1px] flex-1 bg-gradient-to-r from-cyan-900/50 to-transparent"></div>}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {arr.map((item, index) => (
-                      <div key={index} className="flex flex-col items-center group">
-                        <div className="h-12 min-w-[3rem] px-3 flex items-center justify-start pt-10 bg-slate-800 border border-slate-700 rounded-lg text-cyan-300 font-mono shadow-sm group-hover:border-cyan-500/50 group-hover:bg-slate-800/80 transition-all">
-                          {typeof item === 'string' ? `"${item}"` : item}
-                        </div>
-                        <div className="mt-1 text-[10px] text-slate-600 font-mono group-hover:text-cyan-500/70 transition-colors">
-                          [{index}]
-                        </div>
-                      </div>
-                    ))}
+                  
+                  <div className="flex flex-wrap gap-4">
+                    <AnimatePresence mode="popLayout">
+                      {arr.map((item, index) => {
+                        const prevSnapshot = snapIndex > 0 ? snapshots[snapIndex - 1] : [];
+                        const isNew = prevSnapshot.length <= index;
+                        const isModified = !isNew && prevSnapshot[index] !== item;
+
+                        let borderClass = "border-slate-700";
+                        let bgClass = "bg-slate-800/80";
+                        let textClass = "text-cyan-300";
+
+                        if (isNew) {
+                          borderClass = "border-emerald-500/50";
+                          bgClass = "bg-emerald-900/20";
+                          textClass = "text-emerald-300";
+                        } else if (isModified) {
+                          borderClass = "border-amber-500/50";
+                          bgClass = "bg-amber-900/20";
+                          textClass = "text-amber-300";
+                        }
+
+                        return (
+                          <motion.div 
+                            key={`item-${index}`}
+                            layout
+                            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.5, y: -20 }}
+                            transition={{ 
+                              type: "spring", 
+                              stiffness: 400, 
+                              damping: 25,
+                              mass: 1,
+                              delay: index * 0.05 
+                            }}
+                            className="flex flex-col items-center group"
+                          >
+                            <div className="relative">
+                              {/* Glowing effect under the item */}
+                              {(isNew || isModified) && (
+                                <div className={`absolute inset-0 blur-md rounded-xl opacity-30 ${isNew ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                              )}
+                              
+                              {/* The Array element box */}
+                              <motion.div 
+                                whileHover={{ y: -5, scale: 1.05 }}
+                                className={`h-14 min-w-[4rem] px-4 flex items-center justify-center border ${borderClass} ${bgClass} rounded-xl shadow-lg relative overflow-hidden transition-all cursor-default z-10 backdrop-blur-sm group-hover:shadow-cyan-900/20`}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+                                
+                                {/* Badge for New/Modified */}
+                                {isNew && (
+                                  <span className="absolute -top-0 -right-0 text-[8px] font-bold text-emerald-100 bg-emerald-600/80 px-1.5 py-0.5 rounded-bl-lg">
+                                    +
+                                  </span>
+                                )}
+                                {isModified && (
+                                  <span className="absolute -top-0 -right-0 text-[8px] font-bold text-amber-100 bg-amber-600/80 px-1.5 py-0.5 rounded-bl-lg">
+                                    ★
+                                  </span>
+                                )}
+                                
+                                <span className={`font-mono text-base font-medium ${textClass} relative z-10 drop-shadow-sm`}>
+                                  {typeof item === 'string' ? `"${item}"` : item}
+                                </span>
+                              </motion.div>
+                            </div>
+                            
+                            <div className="mt-2 text-[11px] font-mono font-bold text-slate-500 group-hover:text-cyan-400 transition-colors">
+                              [{index}]
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
                   </div>
-                </div>
+                </motion.div>
               ))
             )}
           </div>

@@ -199,7 +199,7 @@ const DiagramGenerator = () => {
             setMermaidSvg(svg);
         } catch (err) {
             console.error("Mermaid render error:", err);
-            // Fallback or error message could be set here
+            setMermaidSvg(`<div class="text-red-500 p-4">Error de Mermaid: ${err.message || err}<br/><pre class="text-xs text-left mt-2">${mermaidSrc}</pre></div>`);
         }
       }
     } catch (error) {
@@ -251,7 +251,7 @@ const DiagramGenerator = () => {
         {/* Footer / Actions */}
         <div className="p-4 bg-[#252526] border-t border-slate-700">
           <button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate()}
             className="w-full py-3 px-4 bg-primary hover:bg-primary/80 text-white font-semibold rounded-md transition-colors flex items-center justify-center gap-2 shadow-lg mb-3"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
